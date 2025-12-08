@@ -1,0 +1,205 @@
+# Kubernetes deployment for Beniamin Dan Pixel Client
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pixel-client
+  labels:
+    name: pixel-client
+    app: pixel-client
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixel-client-config
+  namespace: pixel
+data:
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"
+  NEXT_PUBLIC_API_URL: "https://pixelclient.beniamindan.com"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pixel-client-secrets
+  namespace: pixel
+type: Opaque
+stringData:
+  # Add your production environment variables here
+  NEXT_PUBLIC_API_URL: "https://pixelservices.beniamindan.com"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixel-client-deployment
+  namespace: pixel
+  labels:
+    app: pixel-client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pixel-client
+  template:
+    metadata:
+      labels:
+        app: pixel-client
+    spec:
+      containers:
+      - name: pixel-client
+        image: ghcr.io/beniamindan/pixel-client:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: pixel-client-config
+              key: NODE_ENV
+        - name: NEXT_TELEMETRY_DISABLED
+          valueFrom:
+            configMapKeyRef:
+              name: pixel-client-config
+              key: NEXT_TELEMETRY_DISABLED
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: pixel-client-config
+              key: PORT
+        - name: HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: pixel-client-config
+              key: HOSTNAME
+        - name: NEXT_PUBLIC_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: pixel-client-config
+              key: NEXT_PUBLIC_API_URL
+        # Secret environment variables
+        - name: CLOUDINARY_URL
+          valueFrom:
+            secretKeyRef:
+              name: pixel-client-secrets
+              key: CLOUDINARY_URL
+        - name: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+          valueFrom:
+            secretKeyRef:
+              name: pixel-client-secrets
+              key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pixel-client-service
+  namespace: pixel
+  labels:
+    app: pixel-client
+spec:
+  selector:
+    app: pixel-client
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pixel-client-ingress
+  namespace: pixel
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: $uri
+spec:
+  rules:
+  - host: beniamindan.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pixel-client-service
+            port:
+              number: 80
+
+---
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pixel-client-pdb
+  namespace: pixel
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pixel-client
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pixel-client-hpa
+  namespace: pixel
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pixel-client-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
