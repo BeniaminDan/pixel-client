@@ -42,8 +42,6 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig.yaml
           echo "KUBECONFIG=$HOME/kubeconfig.yaml" >> $GITHUB_ENV
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
       - name: Deploy to Kubernetes
         run: |
