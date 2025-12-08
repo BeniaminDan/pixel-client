@@ -38,15 +38,16 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # Set up KUBECONFIG file and environment variable
       - name: Setup Kubeconfig
-        env:
-          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
-          mkdir -p $HOME/.kube
-          echo "$KUBECONFIG_DATA" | base64 -d > $HOME/.kube/config
-          echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
-          echo "Kubeconfig written:"
-          kubectl config view
+          # Write the KUBECONFIG secret content to a file in the runner's workspace
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig.yaml
+          
+          # Set the KUBECONFIG environment variable to point to the new file
+          echo "KUBECONFIG=$HOME/kubeconfig.yaml" >> $GITHUB_ENV
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
 
       - name: Deploy to Kubernetes
