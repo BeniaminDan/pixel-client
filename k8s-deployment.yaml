@@ -152,7 +152,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: $uri
 spec:
   rules:
-  - host: beniamindan.com
+  - host: pixelclient.beniamindan.com
     http:
       paths:
       - path: /
