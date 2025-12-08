@@ -41,14 +41,13 @@ jobs:
       - name: Setup Kubeconfig
         run: |
           echo "${{ secrets.KUBECONFIG }}" > $HOME/kubeconfig.yaml
+          chmod 600 $HOME/kubeconfig.yaml
           echo "KUBECONFIG=$HOME/kubeconfig.yaml" >> $GITHUB_ENV
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
       - name: Deploy to Kubernetes
         run: |
-          # Apply the deployment configuration
-          kubectl apply -f k8s-deployment.yaml -n pixel
+          # Apply the deployment configuration using the specific context
+          kubectl apply -f k8s-deployment.yaml -n pixel --context pixel
           
-          # Force a restart to pick up the new image (if the tag didn't change, e.g. 'latest')
-          kubectl rollout restart deployment/pixel-client-deployment -n pixel
+          # Force a restart to pick up the new image
+          kubectl rollout restart deployment/pixel-client-deployment -n pixel --context pixel
