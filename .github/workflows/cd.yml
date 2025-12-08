@@ -40,32 +40,14 @@ jobs:
 
       - name: Setup Kubeconfig
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
-          echo "$KUBE_CONFIG_DATA" > $HOME/kubeconfig.yaml
-          chmod 600 $HOME/kubeconfig.yaml
-          echo "KUBECONFIG=$HOME/kubeconfig.yaml" >> $GITHUB_ENV
+          mkdir -p $HOME/.kube
+          echo "$KUBECONFIG_DATA" | base64 -d > $HOME/.kube/config
+          echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+          echo "Kubeconfig written:"
+          kubectl config view
 
-      - name: Verify and Set Kubernetes Context
-        run: |
-          # List contexts to help debug if needed (names only)
-          kubectl config get-contexts -o name
-          
-          # Check if a current context is already set
-          if ! kubectl config current-context &> /dev/null; then
-            echo "No current context set. Attempting to set the first available context."
-            FIRST_CONTEXT=$(kubectl config get-contexts -o name | head -n 1)
-            
-            if [ -z "$FIRST_CONTEXT" ]; then
-              echo "::error::No contexts found in the provided KUBECONFIG secret."
-              exit 1
-            fi
-            
-            kubectl config use-context "$FIRST_CONTEXT"
-            echo "Successfully set context to: $FIRST_CONTEXT"
-          else
-            echo "Current context is already set to: $(kubectl config current-context)"
-          fi
 
       - name: Deploy to Kubernetes
         run: |
