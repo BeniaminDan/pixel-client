@@ -56,30 +56,7 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s-deployment.yaml
-
-          if ! kubectl get ingress pixel-client-ingress -n pixel >/dev/null 2>&1; then
-            cat <<'EOF' | kubectl apply -n pixel -f -
-              apiVersion: networking.k8s.io/v1
-              kind: Ingress
-              metadata:
-                name: pixel-client-ingress
-                namespace: pixel
-                annotations:
-                  nginx.ingress.kubernetes.io/ssl-redirect: "false"
-                  nginx.ingress.kubernetes.io/rewrite-target: $uri
-              spec:
-                rules:
-                - host: pixelclient.beniamindan.com
-                  http:
-                    paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: pixel-client-service
-                          port:
-                            number: 80
-              EOF
-          fi
+          
+          kubectl apply -f k8s-ingress.yaml
           
           kubectl rollout restart deployment/pixel-client-deployment -n pixel
