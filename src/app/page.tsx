@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Shield, Sparkles } from "lucide-react";
 
+import { FluidHeroBackground } from "@/components";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -19,8 +20,10 @@ const highlights = [
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-b from-background to-muted/30">
-      <section className="mx-auto flex max-w-7xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-background to-muted/30">
+      <FluidHeroBackground />
+
+      <div className="mx-auto flex max-w-7xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="space-y-6">
             <p className="text-sm font-semibold text-primary">Pixel Client</p>
@@ -81,7 +84,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

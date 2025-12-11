@@ -41,13 +41,17 @@ export function useCookieConsent() {
   const [shouldShowBanner, setShouldShowBanner] = useState(false);
 
   useEffect(() => {
-    const stored = readConsentCookie();
-    if (stored) {
-      setPreferences(stored);
-      setShouldShowBanner(false);
-    } else {
-      setShouldShowBanner(true);
-    }
+    const frame = requestAnimationFrame(() => {
+      const stored = readConsentCookie();
+      if (stored) {
+        setPreferences(stored);
+        setShouldShowBanner(false);
+      } else {
+        setShouldShowBanner(true);
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const persist = useCallback((next: ConsentPreferences) => {

@@ -23,3 +23,4 @@ export interface Post {
     status: PostStatus;
     authorId: number;
 }
+

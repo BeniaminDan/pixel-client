@@ -18,5 +18,3 @@ spec:
             name: pixel-client-service
             port:
               number: 80
-
-

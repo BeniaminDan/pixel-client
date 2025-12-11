@@ -5,24 +5,27 @@
  * const isDesktop = useMediaQuery('(min-width: 1024px)');
  */
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from "react";
 
 export const useMediaQuery = (query: string) => {
-    const [matches, setMatches] = useState(false);
+  const subscribe = (callback: () => void) => {
+    if (typeof window === "undefined") return () => {};
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return undefined;
+    const mediaQuery = window.matchMedia(query);
+    const handler = () => callback();
 
-        const mediaQuery = window.matchMedia(query);
-        const updateMatch = (event: MediaQueryListEvent) => setMatches(event.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => {
+      mediaQuery.removeEventListener("change", handler);
+    };
+  };
 
-        setMatches(mediaQuery.matches);
-        mediaQuery.addEventListener('change', updateMatch);
+  const getSnapshot = () => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  };
 
-        return () => {
-            mediaQuery.removeEventListener('change', updateMatch);
-        };
-    }, [query]);
+  const getServerSnapshot = () => false;
 
-    return matches;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 };

@@ -73,18 +73,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  User,
-  Mail,
-  Settings,
-  LogOut,
-  Download,
-  Upload,
-  Trash2,
-  MoreHorizontal,
-  Calendar,
-  Bell,
-} from "lucide-react";
+import { User, Settings, LogOut } from "lucide-react";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -392,7 +381,7 @@ export default function StyleguidePage() {
                             <Input type="email" placeholder="john@example.com" {...field} />
                           </FormControl>
                           <FormDescription>
-                            We'll never share your email.
+                            We will never share your email.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -478,7 +467,7 @@ export default function StyleguidePage() {
                     <SheetHeader>
                       <SheetTitle>Edit Profile</SheetTitle>
                       <SheetDescription>
-                        Make changes to your profile here. Click save when you're done.
+                        Make changes to your profile here. Click save when you are done.
                       </SheetDescription>
                     </SheetHeader>
                     <div className="mt-4 space-y-4">
