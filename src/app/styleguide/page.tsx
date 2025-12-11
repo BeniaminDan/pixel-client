@@ -53,6 +53,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  ThemeToggle,
   Table,
   TableBody,
   TableCaption,
@@ -184,6 +185,21 @@ export default function StyleguidePage() {
                   <Badge variant="destructive">Destructive</Badge>
                   <Badge variant="outline">Outline</Badge>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Theme toggle</CardTitle>
+                <CardDescription>
+                  Switch between light and dark to preview the theme
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-4">
+                <ThemeToggle />
+                <p className="text-muted-foreground text-sm">
+                  This uses the shared toggle also present in the header.
+                </p>
               </CardContent>
             </Card>
 

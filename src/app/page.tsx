@@ -1,65 +1,87 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Shield, Sparkles } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+const highlights = [
+  {
+    icon: <Sparkles className="size-5 text-primary" />,
+    title: "Composable UI",
+    description: "Use the shared components to spin up new screens fast.",
+  },
+  {
+    icon: <Shield className="size-5 text-primary" />,
+    title: "Typed Integrations",
+    description: "API helpers and types keep your client code predictable.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="bg-gradient-to-b from-background to-muted/30">
+      <section className="mx-auto flex max-w-7xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-6">
+            <p className="text-sm font-semibold text-primary">Pixel Client</p>
+            <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
+              A clean shell for building the next Pixel experiences.
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Everything you need to start shipping: themeable layout, ready-made
+              UI primitives, HTTP utilities, and typed state management. Extend
+              it as product requirements land.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg">
+                Get started
+                <ArrowRight className="size-4" />
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="https://nextjs.org/docs">View docs</Link>
+              </Button>
+            </div>
+            <div className="text-muted-foreground flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-primary font-medium">
+                Next.js 16
+              </span>
+              <span>Shadcn UI · Zustand · Axios · Tailwind v4</span>
+            </div>
+          </div>
+
+          <Card className="shadow-lg">
+            <CardContent className="flex h-full flex-col gap-6 p-8">
+              <div className="bg-accent text-accent-foreground inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+                Starter ready
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-2xl font-semibold">Page layout scaffold</h2>
+                <p className="text-muted-foreground">
+                  This page uses the shared header, footer, and container system
+                  to keep every screen consistent. Drop in your own sections and
+                  components to extend it.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {highlights.map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-lg border bg-card p-4 text-card-foreground"
+                  >
+                    <div className="flex items-center gap-2">
+                      {item.icon}
+                      <p className="text-sm font-semibold">{item.title}</p>
+                    </div>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      {item.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
     </div>
   );
 }
