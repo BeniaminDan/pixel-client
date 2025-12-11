@@ -1,0 +1,5 @@
+- Use barrel files (`index.ts`) for `hooks/`, `stores/`, `lib/`, `types/` to keep imports clean.
+- Prefer encapsulated styling within reusable components; avoid styling them at call sites.
+- Keep shared utilities strongly typed; centralize API response/error types in `src/types`.
+- Maintain Axios client config in `src/lib/apiClient.ts`; prefer `src/lib/http.ts` helpers (`httpRequest`, `safeHttpRequest`, `buildQueryString`) over ad-hoc fetch calls.
+- Update the memory bank (especially `activeContext.md` and `progress.md`) whenever scaffolding or architecture evolves.
