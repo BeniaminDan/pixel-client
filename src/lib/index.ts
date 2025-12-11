@@ -9,6 +9,8 @@
  * import { apiClient, formatDate } from '@/lib';
  */
 
-export * from './apiClient';
-export * from './http';
+export * from './apiClient'
+export * from './http'
+export * from './fluid-shaders'
+export * from './fluid-webgl'
 // export * from './dateUtils'; // Uncomment/add when created
