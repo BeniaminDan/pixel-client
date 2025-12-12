@@ -59,6 +59,7 @@ import {
   getTextureScale,
   resizeCanvas,
 } from '@/lib/fluid-webgl'
+import { parseCSSColor } from '@/lib/color-utils'
 
 // ============================================================================
 // Default Configuration
@@ -106,6 +107,7 @@ export function useFluidSimulation(
   const lastUpdateTimeRef = useRef<number>(Date.now())
   const colorUpdateTimeRef = useRef<number>(0)
   const splatStackRef = useRef<number[]>([])
+  const colorPaletteIndexRef = useRef<number>(0)
 
   // State for triggering re-renders when config changes
   const [config, setConfigState] = useState<SimConfig>({ ...defaultConfig, ...initialConfig })
@@ -272,6 +274,11 @@ export function useFluidSimulation(
 
   const setSunraysWeight = useCallback((value: number) => {
     updateConfig('SUNRAYS_WEIGHT', value)
+  }, [updateConfig])
+
+  const setColorPalette = useCallback((colors: (Color | string)[] | undefined) => {
+    updateConfig('COLOR_PALETTE', colors)
+    colorPaletteIndexRef.current = 0 // Reset index when palette changes
   }, [updateConfig])
 
   // ============================================================================
@@ -499,7 +506,7 @@ export function useFluidSimulation(
       pointer.prevTexcoordY = pointer.texcoordY
       pointer.deltaX = 0
       pointer.deltaY = 0
-      pointer.color = generateColor()
+      pointer.color = getNextColor()
     }
 
     function updatePointerMoveData(pointer: PointerData, posX: number, posY: number) {
@@ -602,6 +609,36 @@ export function useFluidSimulation(
       dye.swap()
     }
 
+    // Helper function to get next color from palette or generate random
+    function getNextColor(): Color {
+      const palette = configRef.current.COLOR_PALETTE
+      if (palette && palette.length > 0) {
+        const paletteItem = palette[colorPaletteIndexRef.current % palette.length]
+        colorPaletteIndexRef.current = (colorPaletteIndexRef.current + 1) % palette.length
+
+        // Parse the color - handle both Color objects and CSS strings
+        let color: Color
+        if (typeof paletteItem === 'string') {
+          const parsed = parseCSSColor(paletteItem)
+          if (!parsed) {
+            // Fall back to random if parsing fails
+            return generateColor()
+          }
+          color = parsed
+        } else {
+          color = paletteItem
+        }
+
+        // Return a copy with the same 0.15 multiplier as generateColor
+        return {
+          r: color.r * 0.15,
+          g: color.g * 0.15,
+          b: color.b * 0.15,
+        }
+      }
+      return generateColor()
+    }
+
     function splatPointer(pointer: PointerData) {
       const dx = pointer.deltaX * configRef.current.SPLAT_FORCE
       const dy = pointer.deltaY * configRef.current.SPLAT_FORCE
@@ -610,7 +647,7 @@ export function useFluidSimulation(
 
     function internalMultipleSplats(amount: number) {
       for (let i = 0; i < amount; i++) {
-        const color = generateColor()
+        const color = getNextColor()
         color.r *= 10.0
         color.g *= 10.0
         color.b *= 10.0
@@ -883,7 +920,7 @@ export function useFluidSimulation(
       if (colorUpdateTimeRef.current >= 1) {
         colorUpdateTimeRef.current = wrap(colorUpdateTimeRef.current, 0, 1)
         pointers.forEach((p) => {
-          p.color = generateColor()
+          p.color = getNextColor()
         })
       }
     }
@@ -967,5 +1004,6 @@ export function useFluidSimulation(
     setSunrays,
     setSunraysResolution,
     setSunraysWeight,
+    setColorPalette,
   }
 }

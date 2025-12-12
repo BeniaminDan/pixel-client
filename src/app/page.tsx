@@ -30,7 +30,12 @@ export default function Home() {
     <main className='relative flex min-h-screen flex-col bg-background text-foreground'>
       <section className='relative isolate flex min-h-[100dvh] w-full items-center overflow-hidden pt-header pb-12 sm:pb-16 lg:pb-24'>
         <FluidHeroBackground
-          config={{ BACK_TRANSPARENT: true }}
+          config={{
+            BACK_TRANSPARENT: true,
+            COLOR_PALETTE: ['var(--primary)'],
+            BLOOM_INTENSITY: 0.6,        // Less glow (default 1.46)
+            DENSITY_DISSIPATION: 2.0,    // Faster fade (default 1.3)
+          }}
           overlayClassName='from-black/55 via-black/45 to-black/65'
         />
 
@@ -50,7 +55,7 @@ export default function Home() {
               <Button
                 asChild
                 size='lg'
-                className='rounded-lg bg-[#e68658] px-5 text-base text-white shadow-md transition-none hover:bg-[#d9784b]'
+                className='rounded-lg bg-primary px-5 text-base text-white shadow-md transition-none hover:bg-[#d9784b]'
               >
                 <Link href='#'>
                   Start Building now
@@ -79,7 +84,7 @@ export default function Home() {
                 ))}
               </div>
               <p className='px-3 text-xs text-white/70'>
-                Loved by <span className='text-[#e68658]'>+23k</span> more people
+                Loved by <span className='text-primary'>+23k</span> more people
               </p>
             </div>
           </div>

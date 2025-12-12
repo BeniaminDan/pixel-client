@@ -118,6 +118,11 @@ export interface SimConfig {
   SUNRAYS: boolean
   SUNRAYS_RESOLUTION: number
   SUNRAYS_WEIGHT: number
+  /** 
+   * Optional color palette for fluid splats. If provided, colors will be picked from this palette instead of random generation.
+   * Accepts either Color objects (normalized RGB 0-1) or CSS color strings (hex, rgb, rgba, hsl, named colors, CSS variables).
+   */
+  COLOR_PALETTE?: (Color | string)[]
 }
 
 // ============================================================================
@@ -157,4 +162,5 @@ export interface UseFluidSimulationReturn {
   setSunrays: (value: boolean) => void
   setSunraysResolution: (value: number) => void
   setSunraysWeight: (value: number) => void
+  setColorPalette: (colors: (Color | string)[] | undefined) => void
 }

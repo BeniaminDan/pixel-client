@@ -34,7 +34,7 @@ import type { SimConfig, Color, UseFluidSimulationReturn } from '@/types'
 export interface FluidHeroBackgroundProps {
   /** Additional CSS classes */
   className?: string
-  /** Initial simulation configuration */
+  /** Initial simulation configuration (includes COLOR_PALETTE for fluid colors) */
   config?: Partial<SimConfig>
   /** Whether to show the gradient overlay */
   showOverlay?: boolean
@@ -84,6 +84,7 @@ export const FluidHeroBackground = forwardRef<FluidHeroBackgroundRef, FluidHeroB
       setSunrays,
       setSunraysResolution,
       setSunraysWeight,
+      setColorPalette,
     } = useFluidSimulation(config)
 
     // Expose all controls via ref
@@ -117,6 +118,7 @@ export const FluidHeroBackground = forwardRef<FluidHeroBackgroundRef, FluidHeroB
       setSunrays,
       setSunraysResolution,
       setSunraysWeight,
+      setColorPalette,
     }), [
       currentConfig,
       pause,
@@ -147,6 +149,7 @@ export const FluidHeroBackground = forwardRef<FluidHeroBackgroundRef, FluidHeroB
       setSunrays,
       setSunraysResolution,
       setSunraysWeight,
+      setColorPalette,
     ])
 
     return (
