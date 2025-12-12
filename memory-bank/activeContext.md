@@ -10,3 +10,6 @@
 - Cookie consent banner with inline management (no dialog), using shared UI components; stores preferences (necessary/analytics/marketing) in a cookie and renders globally via layout.
 - Next focus: apply these utilities to real product features as requirements arrive and keep types aligned with backend contracts.
 - Constraints: follow barrel-export pattern; avoid styling reusable components at call sites per user preference.
+- Home hero refreshed to match reference: dark canvas, centered headline/CTA stack, badge/avatar cluster using shadcn `Badge`, `Button`, and `Avatar` primitives; floating avatars and marquees removed per follow-up.
+- Hero now spans full viewport height (dvh) with fluid background reinstated and top padding based on `--header-height`.
+- Header supports optional non-sticky mode via `disableSticky` prop; default is sticky/transparent at top and shifts to solid on scroll; header height driven by CSS var.

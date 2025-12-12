@@ -57,7 +57,7 @@ const bugChecklist = [
 export default function ContactPage() {
   return (
     <div className="bg-gradient-to-b from-background to-muted/30">
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="container py-16">
         <div className="space-y-3 text-center">
           <p className="text-sm font-semibold uppercase text-primary">
             Contact & Support

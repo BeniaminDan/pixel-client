@@ -38,8 +38,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="flex min-h-screen flex-col bg-background text-foreground">
-            <AppHeader />
-            <main className="flex-1">{children}</main>
+            <AppHeader isStickyEnabled={true} />
+            <main className="flex-1">
+              {children}
+            </main>
             <AppFooter />
             <CookieConsent />
             <Toaster />

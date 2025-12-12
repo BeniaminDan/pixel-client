@@ -3,8 +3,9 @@
 import Link from "next/link"
 import { ArrowRight, Menu, Search } from "lucide-react"
 
+import { useScrollThreshold } from "@/hooks"
 import { Logo } from "@/components/logo"
-import { NavMenu } from "@/components/nav-menu"
+import { NavMenu, navItems } from "@/components/nav-menu"
 import { SearchField } from "@/components/search-field"
 import { SocialLinks } from "@/components/social-links"
 import { Button } from "@/components/ui/button"
@@ -15,13 +16,31 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { navItems } from "@/components/nav-menu"
 import { ThemeToggle } from "./theme-toggle"
 
-export function AppHeader() {
+interface AppHeaderProps {
+  /** Toggles sticky positioning and scroll-driven surface changes */
+  isStickyEnabled?: boolean
+}
+
+export function AppHeader({ isStickyEnabled = true }: AppHeaderProps) {
+  const hasScrolled = useScrollThreshold(50, isStickyEnabled)
+
+  const positioningClass = isStickyEnabled
+    ? "fixed top-0 z-50 w-full"
+    : "relative w-full"
+  const surfaceClass = isStickyEnabled
+    ? hasScrolled
+      ? "bg-background text-foreground shadow-md"
+      : "bg-transparent text-foreground"
+    : "bg-background text-foreground"
+  const transitionClass = isStickyEnabled ? "transition-all duration-500" : ""
+
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+    <header
+      className={`${positioningClass} ${surfaceClass} ${transitionClass} h-20 z-50`}
+    >
+      <div className="container flex items-center justify-between gap-6 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Logo className="size-8" />
           <span className="text-xl font-semibold max-sm:hidden">

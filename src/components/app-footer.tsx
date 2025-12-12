@@ -7,7 +7,7 @@ import { Logo } from "@/components/logo"
 export function AppFooter() {
   return (
     <footer className="border-t bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <div className="container flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Logo className="size-7" />
           <div className="space-y-1">

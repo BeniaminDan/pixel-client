@@ -1,90 +1,90 @@
-import Link from "next/link";
-import { ArrowRight, Shield, Sparkles } from "lucide-react";
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 
-import { FluidHeroBackground } from "@/components";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { FluidHeroBackground } from '@/components'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
-const highlights = [
+const audienceAvatars = [
   {
-    icon: <Sparkles className="size-5 text-primary" />,
-    title: "Composable UI",
-    description: "Use the shared components to spin up new screens fast.",
+    alt: 'Olivia Sparks',
+    src: 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png',
   },
   {
-    icon: <Shield className="size-5 text-primary" />,
-    title: "Typed Integrations",
-    description: "API helpers and types keep your client code predictable.",
+    alt: 'Howard Lloyd',
+    src: 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png',
   },
-];
+  {
+    alt: 'Hallie Richards',
+    src: 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png',
+  },
+  {
+    alt: 'Jenny Wilson',
+    src: 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png',
+  },
+]
 
 export default function Home() {
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-b from-background to-muted/30">
-      <FluidHeroBackground />
+    <main className='relative flex min-h-screen flex-col bg-background text-foreground'>
+      <section className='relative isolate flex min-h-[100dvh] w-full items-center overflow-hidden pt-header pb-12 sm:pb-16 lg:pb-24'>
+        <FluidHeroBackground
+          config={{ BACK_TRANSPARENT: true }}
+          overlayClassName='from-black/55 via-black/45 to-black/65'
+        />
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-          <div className="space-y-6">
-            <p className="text-sm font-semibold text-primary">Pixel Client</p>
-            <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-              A clean shell for building the next Pixel experiences.
+        <div className='container relative flex flex-col items-center gap-10 sm:gap-16 lg:gap-20'>
+          <div className='flex max-w-3xl flex-col items-center gap-4 text-center'>
+            <Badge className='border-white/20 bg-white/10 px-3 py-1 text-sm font-normal text-white'>
+              Check new updates
+            </Badge>
+            <h1 className='text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl lg:font-bold'>
+              Design High-Quality Websites
             </h1>
-            <p className="text-muted-foreground text-lg">
-              Everything you need to start shipping: themeable layout, ready-made
-              UI primitives, HTTP utilities, and typed state management. Extend
-              it as product requirements land.
+            <p className='max-w-2xl text-lg text-white/70'>
+              Craft stunning websites faster with our UI kit. Access polished, fully
+              customisable components and layouts for a smooth, visually striking UX.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg">
-                Get started
-                <ArrowRight className="size-4" />
+            <div className='flex flex-wrap items-center gap-4'>
+              <Button
+                asChild
+                size='lg'
+                className='rounded-lg bg-[#e68658] px-5 text-base text-white shadow-md transition-none hover:bg-[#d9784b]'
+              >
+                <Link href='#'>
+                  Start Building now
+                  <ArrowRight className='size-5' />
+                </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="https://nextjs.org/docs">View docs</Link>
+              <Button
+                asChild
+                size='lg'
+                variant='outline'
+                className='rounded-lg border-white/20 bg-white/10 px-6 text-base text-white hover:bg-white/20'
+              >
+                <Link href='#'>Sign up</Link>
               </Button>
             </div>
-            <div className="text-muted-foreground flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-primary font-medium">
-                Next.js 16
-              </span>
-              <span>Shadcn UI · Zustand · Axios · Tailwind v4</span>
-            </div>
-          </div>
-
-          <Card className="shadow-lg">
-            <CardContent className="flex h-full flex-col gap-6 p-8">
-              <div className="bg-accent text-accent-foreground inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
-                Starter ready
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold">Page layout scaffold</h2>
-                <p className="text-muted-foreground">
-                  This page uses the shared header, footer, and container system
-                  to keep every screen consistent. Drop in your own sections and
-                  components to extend it.
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {highlights.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-lg border bg-card p-4 text-card-foreground"
+            <div className='mt-10 flex items-center rounded-full border border-white/10 bg-white/10 p-1.5 shadow-sm backdrop-blur'>
+              <div className='flex -space-x-2'>
+                {audienceAvatars.map((avatar) => (
+                  <Avatar
+                    key={avatar.alt}
+                    className='ring-background size-12 ring-2'
                   >
-                    <div className="flex items-center gap-2">
-                      {item.icon}
-                      <p className="text-sm font-semibold">{item.title}</p>
-                    </div>
-                    <p className="text-muted-foreground mt-2 text-sm">
-                      {item.description}
-                    </p>
-                  </div>
+                    <AvatarImage alt={avatar.alt} src={avatar.src} />
+                    <AvatarFallback>{avatar.alt.slice(0, 2)}</AvatarFallback>
+                  </Avatar>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+              <p className='px-3 text-xs text-white/70'>
+                Loved by <span className='text-[#e68658]'>+23k</span> more people
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-  );
+      </section>
+    </main>
+  )
 }

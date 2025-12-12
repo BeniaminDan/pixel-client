@@ -8,6 +8,8 @@
 - New `/contact` page added with support + bug-report form, contact channels, and live-help guidance using shared UI components.
 - Theme toggle component added and surfaced in the header and styleguide for light/dark switching.
 - Cookie consent banner with inline management (no dialog); preferences saved to a cookie using shared UI primitives.
+- Homepage hero refreshed to match the provided design: dark background, badge + headline copy, primary/secondary CTAs, avatar cluster with social proof. Removed marquees and floating avatars; hero fills viewport height with fluid background restored and header-offset top padding.
+- App header gains configurable positioning: default sticky/transparent at top, animates to solid on scroll; `disableSticky` prop switches to fixed solid surface. Header height controlled by `--header-height`.
 
 ## Next Steps
 - Replace placeholder landing page with real product UI once requirements land.
