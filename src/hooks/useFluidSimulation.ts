@@ -525,6 +525,15 @@ export function useFluidSimulation(
     }
 
     // Event handlers
+    // Helper to get canvas-relative position from page coordinates
+    function getCanvasRelativePosition(pageX: number, pageY: number): { x: number; y: number; inBounds: boolean } {
+      const rect = canvas!.getBoundingClientRect()
+      const x = pageX - rect.left - window.scrollX
+      const y = pageY - rect.top - window.scrollY
+      const inBounds = x >= 0 && x <= rect.width && y >= 0 && y <= rect.height
+      return { x, y, inBounds }
+    }
+
     const handleClick = (e: MouseEvent) => {
       const posX = scaleByPixelRatio(e.offsetX)
       const posY = scaleByPixelRatio(e.offsetY)
@@ -534,11 +543,30 @@ export function useFluidSimulation(
     }
 
     const handleMouseMove = (e: MouseEvent) => {
+      const { x, y, inBounds } = getCanvasRelativePosition(e.pageX, e.pageY)
+
       const pointer = pointers[0]
-      if (!pointer.down) return
-      const posX = scaleByPixelRatio(e.pageX)
-      const posY = scaleByPixelRatio(e.pageY)
-      updatePointerMoveData(pointer, posX, posY)
+
+      // When mouse enters canvas bounds, activate the pointer
+      if (inBounds && !pointer.down) {
+        const posX = scaleByPixelRatio(x)
+        const posY = scaleByPixelRatio(y)
+        updatePointerDownData(pointer, -1, posX, posY)
+        return
+      }
+
+      // When mouse leaves canvas bounds, deactivate the pointer
+      if (!inBounds && pointer.down) {
+        updatePointerUpData(pointer)
+        return
+      }
+
+      // Track movement while in bounds
+      if (inBounds && pointer.down) {
+        const posX = scaleByPixelRatio(x)
+        const posY = scaleByPixelRatio(y)
+        updatePointerMoveData(pointer, posX, posY)
+      }
     }
 
     const handleMouseUp = () => {
@@ -938,9 +966,9 @@ export function useFluidSimulation(
       })
     }
 
-    // Setup event listeners
+    // Setup event listeners - click on canvas, mousemove on window to work through overlapping elements
     canvas.addEventListener('click', handleClick)
-    canvas.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false })
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false })
@@ -959,7 +987,7 @@ export function useFluidSimulation(
     return () => {
       cancelAnimationFrame(animationRef.current)
       canvas.removeEventListener('click', handleClick)
-      canvas.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
       canvas.removeEventListener('touchstart', handleTouchStart)
       canvas.removeEventListener('touchmove', handleTouchMove)
