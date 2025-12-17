@@ -29,3 +29,4 @@ export * from "./social-links";
 export * from "./app-header";
 export * from "./app-footer";
 export * from "./fluid-hero-background";
+export * from "./user-menu";

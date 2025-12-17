@@ -8,6 +8,7 @@ import { Logo } from "@/components/logo"
 import { NavMenu, navItems } from "@/components/nav-menu"
 import { SearchField } from "@/components/search-field"
 import { SocialLinks } from "@/components/social-links"
+import { UserMenu } from "@/components/user-menu"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -21,9 +22,15 @@ import { ThemeToggle } from "./theme-toggle"
 interface AppHeaderProps {
   /** Toggles sticky positioning and scroll-driven surface changes */
   isStickyEnabled?: boolean
+  /** Current user session data */
+  user?: {
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  } | null
 }
 
-export function AppHeader({ isStickyEnabled = true }: AppHeaderProps) {
+export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
   const hasScrolled = useScrollThreshold(50, isStickyEnabled)
 
   const positioningClass = isStickyEnabled
@@ -38,7 +45,7 @@ export function AppHeader({ isStickyEnabled = true }: AppHeaderProps) {
 
   return (
     <header
-      className={`${positioningClass} ${surfaceClass} ${transitionClass} h-20 z-50`}
+      className={`${positioningClass} ${surfaceClass} ${transitionClass} z-50`}
     >
       <div className="container flex items-center justify-between gap-6 py-3">
         <Link href="/" className="flex items-center gap-3">
@@ -59,10 +66,16 @@ export function AppHeader({ isStickyEnabled = true }: AppHeaderProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button size="default">
-              Get Started
-              <ArrowRight className="size-4" />
-            </Button>
+            {user ? (
+              <UserMenu user={user} />
+            ) : (
+              <Button size="default" asChild>
+                <Link href="/login">
+                  Get Started
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -108,13 +121,23 @@ export function AppHeader({ isStickyEnabled = true }: AppHeaderProps) {
                 <SocialLinks />
               </div>
               <div className="grid grid-cols-2 gap-2 px-4 pb-6 pt-4">
-                <Button>
-                  Get Started
-                  <ArrowRight className="size-4" />
-                </Button>
-                <Button variant="outline">
-                  Contact
-                </Button>
+                {user ? (
+                  <div className="col-span-2">
+                    <UserMenu user={user} />
+                  </div>
+                ) : (
+                  <>
+                    <Button asChild>
+                      <Link href="/login">
+                        Get Started
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    </Button>
+                    <Button variant="outline">
+                      Contact
+                    </Button>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>
