@@ -19,7 +19,7 @@ const OPENIDDICT_CLIENT_SECRET = process.env.OPENIDDICT_CLIENT_SECRET
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    const tokenEndpoint = `${OPENIDDICT_ISSUER}connect/token`
+    const tokenEndpoint = `${OPENIDDICT_ISSUER}api/auth/connect/token`
 
     const response = await fetch(tokenEndpoint, {
       method: "POST",
@@ -34,7 +34,18 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       }),
     })
 
-    const refreshedTokens = await response.json()
+    // Check if response has content before parsing
+    const responseText = await response.text()
+    if (!responseText) {
+      throw new Error("Empty response from token endpoint")
+    }
+
+    let refreshedTokens
+    try {
+      refreshedTokens = JSON.parse(responseText)
+    } catch (parseError) {
+      throw new Error(`Invalid JSON response: ${responseText}`)
+    }
 
     if (!response.ok) {
       throw new Error(refreshedTokens.error || "Failed to refresh token")
@@ -69,7 +80,7 @@ async function authenticateWithPassword(
   user: { id: string; email: string; name?: string }
 } | null> {
   try {
-    const tokenEndpoint = `${OPENIDDICT_ISSUER}connect/token`
+    const tokenEndpoint = `${OPENIDDICT_ISSUER}api/auth/connect/token`
 
     const response = await fetch(tokenEndpoint, {
       method: "POST",
@@ -82,25 +93,86 @@ async function authenticateWithPassword(
         client_secret: OPENIDDICT_CLIENT_SECRET!,
         username: email,
         password: password,
-        scope: "openid profile email offline_access pixel_api",
       }),
     })
 
-    const tokens = await response.json()
+    // Check if response has content before parsing
+    const responseText = await response.text()
+    if (!responseText) {
+      console.error("ROPC authentication failed: Empty response", {
+        status: response.status,
+        statusText: response.statusText,
+        url: tokenEndpoint,
+      })
+      return null
+    }
+
+    let tokens
+    try {
+      tokens = JSON.parse(responseText)
+    } catch (parseError) {
+      console.error("ROPC authentication failed: Invalid JSON response", {
+        status: response.status,
+        statusText: response.statusText,
+        responseText,
+        url: tokenEndpoint,
+        parseError,
+      })
+      return null
+    }
 
     if (!response.ok) {
-      console.error("ROPC authentication failed:", tokens.error_description || tokens.error)
+      console.error("ROPC authentication failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: tokens.error,
+        errorDescription: tokens.error_description,
+        errorUri: tokens.error_uri,
+        fullResponse: tokens,
+        url: tokenEndpoint,
+      })
       return null
     }
 
     // Fetch user info from the userinfo endpoint
-    const userInfoResponse = await fetch(`${OPENIDDICT_ISSUER}connect/userinfo`, {
+    const userInfoResponse = await fetch(`${OPENIDDICT_ISSUER}api/auth/connect/userinfo`, {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
       },
     })
 
-    const userInfo = await userInfoResponse.json()
+    if (!userInfoResponse.ok) {
+      const userInfoErrorText = await userInfoResponse.text()
+      console.error("Failed to fetch user info:", {
+        status: userInfoResponse.status,
+        statusText: userInfoResponse.statusText,
+        responseText: userInfoErrorText,
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
+      })
+      return null
+    }
+
+    const userInfoText = await userInfoResponse.text()
+    if (!userInfoText) {
+      console.error("User info response is empty", {
+        status: userInfoResponse.status,
+        statusText: userInfoResponse.statusText,
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
+      })
+      return null
+    }
+
+    let userInfo
+    try {
+      userInfo = JSON.parse(userInfoText)
+    } catch (parseError) {
+      console.error("Failed to parse user info JSON:", {
+        responseText: userInfoText,
+        parseError,
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
+      })
+      return null
+    }
 
     return {
       accessToken: tokens.access_token,
@@ -113,7 +185,13 @@ async function authenticateWithPassword(
       },
     }
   } catch (error) {
-    console.error("ROPC authentication error:", error)
+    console.error("ROPC authentication error:", {
+      error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+      email,
+      tokenEndpoint: `${OPENIDDICT_ISSUER}api/auth/connect/token`,
+    })
     return null
   }
 }
@@ -146,8 +224,11 @@ const config: NextAuthConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.error("Credentials authorize: Missing email or password")
           return null
         }
+
+        console.log("Credentials authorize: Attempting authentication for", credentials.email)
 
         const result = await authenticateWithPassword(
           credentials.email as string,
@@ -155,8 +236,11 @@ const config: NextAuthConfig = {
         )
 
         if (!result) {
+          console.error("Credentials authorize: Authentication failed - authenticateWithPassword returned null")
           return null
         }
+
+        console.log("Credentials authorize: Authentication successful for", credentials.email)
 
         // Return user object with tokens attached for JWT callback
         return {

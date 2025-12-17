@@ -6,7 +6,7 @@
 import { cookies } from "next/headers"
 import { decode } from "next-auth/jwt"
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL + "auth/"
 
 export interface UserProfile {
   id: string

@@ -1,0 +1,22 @@
+'use client'
+
+import { RefreshCw } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+
+export function RefreshButton() {
+  return (
+    <Button
+      size="lg"
+      className="w-full"
+      onClick={() => {
+        if (typeof window !== 'undefined') {
+          window.location.reload()
+        }
+      }}
+    >
+      <RefreshCw className="size-4" />
+      Refresh Page
+    </Button>
+  )
+}

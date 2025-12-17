@@ -3,7 +3,7 @@
 import { signIn } from "@/auth"
 import { AuthError } from "next-auth"
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL + "auth/"
 
 export interface LoginResult {
   success: boolean

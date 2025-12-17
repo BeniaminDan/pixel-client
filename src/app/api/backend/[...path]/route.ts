@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 import { decode } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL + "auth/"
 
 /**
  * Get the access token from the NextAuth JWT cookie
