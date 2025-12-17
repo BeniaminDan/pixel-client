@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 import { useAuthPopup } from "@/hooks"
 import { loginWithCredentials } from "@/actions/credentials-auth"
@@ -18,17 +19,29 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/"
+  const isPopup = searchParams.get("popup") === "true"
+  const provider = searchParams.get("provider")
 
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [isAutoSigningIn, setIsAutoSigningIn] = useState(false)
 
   const { signIn: signInWithPopup, isLoading: isOAuthLoading } = useAuthPopup({
     callbackUrl,
     onError: (err) => setError(err),
   })
 
-  const isLoading = isPending || isOAuthLoading
+  // Auto-trigger OAuth when opened in popup mode
+  useEffect(() => {
+    if (isPopup && provider && !isAutoSigningIn) {
+      setIsAutoSigningIn(true)
+      // Use next-auth's signIn which will redirect to the OAuth provider
+      signIn(provider, { callbackUrl })
+    }
+  }, [isPopup, provider, callbackUrl, isAutoSigningIn])
+
+  const isLoading = isPending || isOAuthLoading || isAutoSigningIn
 
   async function handleCredentialsSubmit(formData: FormData) {
     setError(null)
@@ -46,6 +59,18 @@ export default function LoginPage() {
         setError(result.error || "Login failed")
       }
     })
+  }
+
+  // Show loading state when auto-triggering OAuth in popup
+  if (isPopup && isAutoSigningIn) {
+    return (
+      <div className="flex h-dvh items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-sm text-muted-foreground">Redirecting to sign in...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -199,20 +199,32 @@ async function authenticateWithPassword(
 const config: NextAuthConfig = {
   debug: true,
   providers: [
-    // OpenIddict OIDC provider for OAuth popup flow
+    // OpenIddict OAuth2 provider for OAuth popup flow
+    // Using OAuth2 type with explicit endpoints instead of OIDC discovery
+    // because Auth.js v5 strips the path from issuer URLs during discovery
     {
       id: "openiddict",
       name: "OpenIddict",
-      type: "oidc",
-      issuer: OPENIDDICT_ISSUER,
+      type: "oauth",
       clientId: OPENIDDICT_CLIENT_ID,
       clientSecret: OPENIDDICT_CLIENT_SECRET,
       authorization: {
-        params: {
-          scope: "openid profile email offline_access pixel_api",
-        },
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/authorize`,
+      },
+      token: {
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/token`,
+      },
+      userinfo: {
+        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
       },
       checks: ["pkce", "state"],
+      profile(profile) {
+        return {
+          id: profile.sub,
+          email: profile.email,
+          name: profile.name,
+        }
+      },
     },
     // Credentials provider for email/password login via ROPC
     Credentials({
