@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { AlertCircle, Home, RefreshCw, ArrowLeft } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 
 import { AppFooter, AppHeader } from '@/components'
-import { Button } from '@/components/ui/button'
+import { ClientActionButton } from '@/components/client-action-button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSession } from 'next-auth/react'
 
@@ -41,7 +41,7 @@ export default function Error({ error, reset }: ErrorProps) {
                 Something went wrong!
               </h1>
               <p className="text-muted-foreground text-lg">
-                An unexpected error occurred. Don't worry, we're on it.
+                An unexpected error occurred. Don&#39;t worry, we&#39;re on it.
               </p>
             </div>
           </div>
@@ -69,29 +69,11 @@ export default function Error({ error, reset }: ErrorProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <Button onClick={reset} size="lg" className="w-full">
-                <RefreshCw className="size-4" />
+              <ClientActionButton onClick={reset} size="lg" className="w-full">
                 Try Again
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full">
-                <Link href="/">
-                  <Home className="size-4" />
-                  Go Home
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="w-full"
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    window.history.back()
-                  }
-                }}
-              >
-                <ArrowLeft className="size-4" />
-                Go Back
-              </Button>
+              </ClientActionButton>
+              <ClientActionButton action="home" actionHref="/" variant="outline" size="lg" className="w-full" />
+              <ClientActionButton action="back" variant="ghost" size="lg" className="w-full" />
             </CardContent>
           </Card>
 

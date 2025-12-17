@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ServerOff, Home } from 'lucide-react'
 
-import { RefreshButton } from '@/components/status-pages'
+import { ClientActionButton } from '@/components/client-action-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -34,13 +34,8 @@ export default function ServerError() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <RefreshButton />
-            <Button asChild variant="outline" size="lg" className="w-full">
-              <Link href="/">
-                <Home className="size-4" />
-                Go Home
-              </Link>
-            </Button>
+            <ClientActionButton action="refresh" size="lg" className="w-full" />
+            <ClientActionButton action="home" actionHref="/" variant="outline" size="lg" className="w-full" />
           </CardContent>
         </Card>
 

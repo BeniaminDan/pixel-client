@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Home, Search } from 'lucide-react'
 
 import { AppFooter, AppHeader } from '@/components'
-import { BackButton } from '@/components/status-pages'
+import { ClientActionButton } from '@/components/client-action-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { auth } from '@/auth'
@@ -40,19 +40,17 @@ export default async function NotFound() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <Button asChild size="lg" className="w-full">
-                <Link href="/">
-                  <Home className="size-4" />
-                  Go Home
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full">
-                <Link href="/contact">
-                  <Search className="size-4" />
-                  Contact Support
-                </Link>
-              </Button>
-              <BackButton />
+              <ClientActionButton action="home" actionHref="/" size="lg" className="w-full" />
+              <ClientActionButton
+                action="search"
+                actionHref="/contact"
+                variant="outline"
+                size="lg"
+                className="w-full"
+              >
+                Contact Support
+              </ClientActionButton>
+              <ClientActionButton action="back" variant="ghost" size="lg" className="w-full" />
             </CardContent>
           </Card>
 

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ShieldAlert, Home } from 'lucide-react'
 
-import { BackButton } from '@/components/status-pages'
+import { ClientActionButton } from '@/components/client-action-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -21,7 +21,7 @@ export default function Forbidden() {
               403 - Access Forbidden
             </h1>
             <p className="text-muted-foreground text-lg">
-              You don't have permission to access this resource.
+              You don&#39;t have permission to access this resource.
             </p>
           </div>
         </div>
@@ -35,17 +35,10 @@ export default function Forbidden() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <Button asChild size="lg" className="w-full">
-              <Link href="/login">
-                Sign In
-              </Link>
+              <Link href="/login">Sign In</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="w-full">
-              <Link href="/">
-                <Home className="size-4" />
-                Go Home
-              </Link>
-            </Button>
-            <BackButton />
+            <ClientActionButton action="home" actionHref="/" variant="outline" size="lg" className="w-full" />
+            <ClientActionButton action="back" variant="ghost" size="lg" className="w-full" />
           </CardContent>
         </Card>
 
