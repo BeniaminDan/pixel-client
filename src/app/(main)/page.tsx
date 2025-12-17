@@ -90,6 +90,23 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <LogoutButton />
     </main>
   )
+}
+
+import { signOut } from "@/auth";
+
+export function LogoutButton() {
+  return (
+      <form
+          action={async () => {
+            "use server";
+            await signOut({ redirectTo: "/" });
+          }}
+      >
+        <button type="submit">Sign out</button>
+      </form>
+  );
 }
