@@ -85,7 +85,7 @@ export default function LoginPage() {
                                 className="dark:stroke-black"
                             ></line>
                         </svg>
-                        <span className="text-xl font-semibold">shadcn/studio</span>
+                        <span className="text-xl font-semibold">Pixel Studio</span>
                     </div>
                     <div>
                         <h2 className="mb-1.5 text-2xl font-semibold">Welcome back</h2>
