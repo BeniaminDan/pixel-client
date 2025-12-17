@@ -136,7 +136,7 @@ export function AuthMarketingPanel({
                     </div>
                     <div className="flex flex-col gap-5 p-6">
                         <p className="line-clamp-2 pr-12 text-3xl font-bold">
-                            We're excited to have you join our community
+                            We&apos;re excited to have you join our community
                         </p>
                         <p className="line-clamp-2 text-lg">
                             Your account will allow you to securely save your progress, customize

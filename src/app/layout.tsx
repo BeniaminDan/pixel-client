@@ -1,46 +1,49 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "@/app/globals.css";
-import { CookieConsent } from "@/components/cookie-consent";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/theme-provider";
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import "@/app/globals.css"
+import { CookieConsent } from "@/components/cookie-consent"
+import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/components/theme-provider"
+import { SessionProvider } from "@/components/auth/session-provider"
 
 const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+})
 
 const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
 
 export const metadata: Metadata = {
-    title: "Pixel Client",
-    description: "Foundational UI shell for Pixel experiences",
-};
+  title: "Pixel Client",
+  description: "Foundational UI shell for Pixel experiences",
+}
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-    return (
-        <html lang="en" suppressHydrationWarning>
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    {children}
-                    <CookieConsent />
-                    <Toaster />
-                </ThemeProvider>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <CookieConsent />
+            <Toaster />
+          </ThemeProvider>
+        </SessionProvider>
+      </body>
+    </html>
+  )
 }

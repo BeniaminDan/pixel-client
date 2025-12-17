@@ -1,41 +1,79 @@
 /**
- * @fileoverview Utility for creating and configuring an API client (e.g., using Axios or Fetch).
+ * @fileoverview API client configuration for making HTTP requests.
  *
- * This file is where you configure base URLs, set up interceptors for handling
- * authentication tokens, error handling (e.g., refreshing tokens), and request logging.
- * It ensures all API calls across the application share the same configuration.
+ * ## Authentication Strategy
  *
- * @usage
- * // In a component or service file:
- * import { apiClient } from '@/lib/apiClient';
+ * This application uses HTTP-only cookies for secure token storage.
+ * Access tokens are never exposed to client-side JavaScript.
  *
- * async function fetchPosts() {
- * const response = await apiClient.get('/posts');
- * return response.data;
- * }
+ * ### For authenticated requests:
+ * Use the Next.js API proxy route at `/api/backend/...` which automatically
+ * attaches the Bearer token from the server-side session.
+ *
+ * @example
+ * ```tsx
+ * // Client-side authenticated request (goes through proxy)
+ * const response = await fetch('/api/backend/account/me')
+ * ```
+ *
+ * ### For public/unauthenticated requests:
+ * Use the apiClient directly for public endpoints.
+ *
+ * @example
+ * ```tsx
+ * import { apiClient } from '@/lib/apiClient'
+ * const response = await apiClient.get('/public/health')
+ * ```
+ *
+ * ### For server-side requests:
+ * Use the services in `@/services` which handle authentication automatically.
+ *
+ * @example
+ * ```tsx
+ * import { getProfile } from '@/services/account'
+ * const result = await getProfile()
+ * ```
  */
 
-import axios from 'axios';
+import axios from 'axios'
 
-// Create a custom instance of Axios
+/**
+ * API client for public (unauthenticated) requests.
+ *
+ * For authenticated requests, use the proxy at `/api/backend/...` instead.
+ */
 export const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
-// Example: Add a request interceptor to attach an auth token
-apiClient.interceptors.request.use(
-    (config) => {
-        // const token = localStorage.getItem('authToken');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+/**
+ * Proxy client for authenticated requests through Next.js API routes.
+ * This client automatically uses the session's access token via the proxy.
+ */
+export const authenticatedClient = axios.create({
+  baseURL: '/api/backend',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+// Add response interceptor for error handling
+authenticatedClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle 401 errors (unauthorized/session expired)
+    if (error.response?.status === 401) {
+      // Optionally redirect to login or trigger re-authentication
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(currentPath)}&error=SessionExpired`
+      }
     }
-);
+    return Promise.reject(error)
+  }
+)

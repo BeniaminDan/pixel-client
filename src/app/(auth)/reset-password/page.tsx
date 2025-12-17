@@ -2,59 +2,85 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react"
+import { useSearchParams } from "next/navigation"
+import { ArrowLeft, Eye, EyeOff, Loader2, CheckCircle, XCircle } from "lucide-react"
 
-import { useAuthPopup } from "@/hooks"
-import { registerUser } from "@/actions/credentials-auth"
+import { resetPasswordAction } from "@/actions/account"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { AuthMarketingPanel } from "@/components/auth/auth-marketing-panel"
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
+  const searchParams = useSearchParams()
+  const email = searchParams.get("email") || ""
+  const token = searchParams.get("token") || ""
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const { signIn: signInWithPopup, isLoading: isOAuthLoading } = useAuthPopup({
-    callbackUrl: "/",
-    onError: (err) => setError(err),
-  })
-
-  const isLoading = isPending || isOAuthLoading
+  // Check if we have required params
+  const hasRequiredParams = email && token
 
   async function handleSubmit(formData: FormData) {
     setError(null)
 
-    const termsAccepted = formData.get("terms") === "on"
-    if (!termsAccepted) {
-      setError("You must accept the terms and conditions")
+    const newPassword = formData.get("newPassword") as string
+    const confirmNewPassword = formData.get("confirmNewPassword") as string
+
+    if (newPassword !== confirmNewPassword) {
+      setError("Passwords do not match")
       return
     }
 
     startTransition(async () => {
-      const email = formData.get("email") as string
-      const password = formData.get("password") as string
-      const confirmPassword = formData.get("confirmPassword") as string
-      const name = formData.get("name") as string
-
-      const result = await registerUser({
+      const result = await resetPasswordAction({
         email,
-        password,
-        confirmPassword,
-        name,
+        token,
+        newPassword,
+        confirmNewPassword,
       })
 
       if (result.success) {
         setSuccess(true)
       } else {
-        setError(result.error || "Registration failed")
+        setError(result.error || "Failed to reset password")
       }
     })
+  }
+
+  if (!hasRequiredParams) {
+    return (
+      <div className="h-dvh lg:grid lg:grid-cols-2">
+        <div className="flex h-full items-center justify-center sm:px-6 md:px-8">
+          <div className="flex w-full flex-col items-center gap-6 p-6 text-center sm:max-w-lg">
+            <div className="flex size-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <XCircle className="size-8 text-red-600 dark:text-red-400" />
+            </div>
+
+            <div>
+              <h2 className="mb-2 text-2xl font-semibold">Invalid reset link</h2>
+              <p className="text-muted-foreground">
+                This password reset link is invalid or has expired. Please request a
+                new one.
+              </p>
+            </div>
+
+            <Button asChild>
+              <Link href="/forgot-password">Request new link</Link>
+            </Button>
+          </div>
+        </div>
+
+        <AuthMarketingPanel
+          title="Reset your password"
+          subtitle="We'll help you get back into your account."
+        />
+      </div>
+    )
   }
 
   if (success) {
@@ -67,33 +93,22 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <h2 className="mb-2 text-2xl font-semibold">Check your email</h2>
+              <h2 className="mb-2 text-2xl font-semibold">Password reset!</h2>
               <p className="text-muted-foreground">
-                We&apos;ve sent you a confirmation link. Please check your email to
-                verify your account and complete the registration.
+                Your password has been successfully reset. You can now log in with
+                your new password.
               </p>
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="outline" asChild>
-                <Link href="/login">Back to Login</Link>
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setSuccess(false)
-                  setError(null)
-                }}
-              >
-                Register another account
-              </Button>
-            </div>
+            <Button asChild>
+              <Link href="/login">Go to Login</Link>
+            </Button>
           </div>
         </div>
 
         <AuthMarketingPanel
-          title="Almost there!"
-          subtitle="Just one more step to unlock your full potential."
+          title="Password updated!"
+          subtitle="Your account is now secure with your new password."
         />
       </div>
     )
@@ -103,6 +118,14 @@ export default function RegisterPage() {
     <div className="h-dvh lg:grid lg:grid-cols-2">
       <div className="flex h-full items-center justify-center space-y-6 sm:px-6 md:px-8">
         <div className="flex w-full flex-col gap-6 p-6 sm:max-w-lg">
+          <Link
+            href="/login"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" />
+            Back to login
+          </Link>
+
           <div className="flex items-center gap-3">
             <svg
               width="1em"
@@ -173,9 +196,9 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <h2 className="mb-1.5 text-2xl font-semibold">Create your account</h2>
+            <h2 className="mb-1.5 text-2xl font-semibold">Reset your password</h2>
             <p className="text-muted-foreground">
-              Let&apos;s get started with your 30 days free trial
+              Enter your new password below.
             </p>
           </div>
 
@@ -185,76 +208,18 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => signInWithPopup("openiddict")}
-            disabled={isLoading}
-          >
-            {isOAuthLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <svg
-                className="mr-2 h-4 w-4"
-                aria-hidden="true"
-                focusable="false"
-                data-prefix="fab"
-                data-icon="google"
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 488 512"
-              >
-                <path
-                  fill="currentColor"
-                  d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-                ></path>
-              </svg>
-            )}
-            Continue with SSO
-          </Button>
-
-          <div className="flex items-center gap-4">
-            <Separator className="flex-1" />
-            <p className="text-muted-foreground text-sm">or</p>
-            <Separator className="flex-1" />
-          </div>
-
           <form action={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder="Enter your name"
-                type="text"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="userEmail">Email address*</Label>
-              <Input
-                id="userEmail"
-                name="email"
-                placeholder="Enter your email address"
-                type="email"
-                required
-                disabled={isLoading}
-              />
-            </div>
-
             <div className="w-full space-y-1">
-              <Label htmlFor="password">Password*</Label>
+              <Label htmlFor="newPassword">New Password</Label>
               <div className="relative">
                 <Input
-                  id="password"
-                  name="password"
+                  id="newPassword"
+                  name="newPassword"
                   placeholder="••••••••••••••••"
                   type={showPassword ? "text" : "password"}
                   className="pr-9"
                   required
-                  disabled={isLoading}
+                  disabled={isPending}
                   minLength={8}
                 />
                 <Button
@@ -275,16 +240,16 @@ export default function RegisterPage() {
             </div>
 
             <div className="w-full space-y-1">
-              <Label htmlFor="confirmPassword">Confirm Password*</Label>
+              <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
               <div className="relative">
                 <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="confirmNewPassword"
+                  name="confirmNewPassword"
                   placeholder="••••••••••••••••"
                   type={showConfirmPassword ? "text" : "password"}
                   className="pr-9"
                   required
-                  disabled={isLoading}
+                  disabled={isPending}
                   minLength={8}
                 />
                 <Button
@@ -304,44 +269,23 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Checkbox id="terms" name="terms" required />
-              <Label htmlFor="terms" className="font-normal text-muted-foreground">
-                I agree to the{" "}
-                <Link href="/terms" className="text-foreground hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-foreground hover:underline">
-                  Privacy Policy
-                </Link>
-              </Label>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
+                  Resetting...
                 </>
               ) : (
-                "Create account"
+                "Reset password"
               )}
             </Button>
           </form>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/login" className="text-foreground hover:underline">
-              Log in
-            </Link>
-          </p>
         </div>
       </div>
 
       <AuthMarketingPanel
-        title="Create your account to get started."
-        subtitle="Your account will allow you to securely save your progress, customize your preferences, and stay connected across all your devices."
+        title="Reset your password"
+        subtitle="Choose a strong password to keep your account secure."
       />
     </div>
   )
