@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { signOut, clearRefreshTokenCookie } from "@/lib/auth"
+import { signOut } from "@/lib/auth"
 import {
   confirmEmail as confirmEmailService,
   resendConfirmation as resendConfirmationService,
@@ -182,8 +182,6 @@ export async function deleteAccountAction(
   const result = await deleteAccountService(password)
 
   if (result.success) {
-    // Clear refresh token cookie and sign out the user after account deletion
-    await clearRefreshTokenCookie()
     await signOut({ redirectTo: "/" })
   }
 
