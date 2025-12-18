@@ -61,7 +61,7 @@ export function CanvasPreview({
     // Calculate visible area based on viewport
     const centerX = config.width / 2
     const centerY = config.height / 2
-    const visibleRange = Math.floor(config.width / config.pixelSize / viewport.zoom / 2)
+    // const visibleRange = Math.floor(config.width / config.pixelSize / viewport.zoom / 2)
 
     // Draw pixels
     pixels.forEach((pixel) => {

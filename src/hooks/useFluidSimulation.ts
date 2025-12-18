@@ -4,62 +4,62 @@
  * @fileoverview React hook for WebGL fluid simulation with full configuration control.
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import type {
-  GL,
   Color,
-  SimConfig,
-  WebGLExtensions,
-  FBO,
   DoubleFBO,
+  FBO,
+  GL,
   PointerData,
+  SimConfig,
   UseFluidSimulationReturn,
+  WebGLExtensions,
 } from '@/types'
 import {
+  advectionShader,
   baseVertexShader,
-  blurVertexShader,
-  blurShader,
-  copyShader,
-  clearShader,
-  colorShader,
-  checkerboardShader,
-  bloomPrefilterShader,
   bloomBlurShader,
   bloomFinalShader,
+  bloomPrefilterShader,
+  blurShader,
+  blurVertexShader,
+  checkerboardShader,
+  clearShader,
+  colorShader,
+  copyShader,
+  curlShader,
+  displayShaderSource,
+  divergenceShader,
+  gradientSubtractShader,
+  pressureShader,
+  splatShader,
   sunraysMaskShader,
   sunraysShader,
-  splatShader,
-  advectionShader,
-  divergenceShader,
-  curlShader,
   vorticityShader,
-  pressureShader,
-  gradientSubtractShader,
-  displayShaderSource,
 } from '@/lib/fluid-shaders'
 import {
-  GLProgram,
-  Material,
-  compileShader,
-  getSupportedFormat,
-  createFBO,
-  createDoubleFBO,
-  createDitheringTexture,
   blit,
-  createPointer,
-  scaleByPixelRatio,
-  wrap,
-  generateColor,
-  normalizeColor,
+  compileShader,
   correctDeltaX,
   correctDeltaY,
   correctRadius,
-  isMobile,
+  createDitheringTexture,
+  createDoubleFBO,
+  createFBO,
+  createPointer,
+  generateColor,
   getResolution,
+  getSupportedFormat,
   getTextureScale,
+  GLProgram,
+  isMobile,
+  Material,
+  normalizeColor,
   resizeCanvas,
+  scaleByPixelRatio,
+  wrap,
 } from '@/lib/fluid-webgl'
-import { parseCSSColor } from '@/lib/color-utils'
+import {parseCSSColor} from '@/lib/color-utils'
 
 // ============================================================================
 // Default Configuration
@@ -997,8 +997,7 @@ export function useFluidSimulation(
   }, [togglePause])
 
   useEffect(() => {
-    const cleanup = startSimulation()
-    return cleanup
+    return startSimulation()
   }, [startSimulation])
 
   return {
