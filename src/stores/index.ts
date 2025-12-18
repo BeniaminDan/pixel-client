@@ -12,5 +12,8 @@
  * const count = useCounterStore(state => state.count);
  */
 
-export * from './useCounterStore';
-export * from './useUiStore';
+export * from './useCounterStore'
+export * from './useUiStore'
+export * from './useCanvasStore'
+export * from './useThroneStore'
+export * from './useStatsStore'

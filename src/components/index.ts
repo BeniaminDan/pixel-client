@@ -34,3 +34,17 @@ export * from "./user-menu"
 // Auth Components
 export * from "./auth/session-provider"
 export * from "./auth/auth-marketing-panel"
+
+// Canvas Components
+export * from "./canvas"
+
+// Pricing Components
+export * from "./pricing"
+
+// Throne Components
+export * from "./throne"
+
+// Feature Components
+export * from "./zone-heatmap"
+export * from "./live-stats"
+export * from "./sticky-cta-bar"

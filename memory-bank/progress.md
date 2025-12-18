@@ -1,16 +1,63 @@
 # Progress
 
-- Baseline Next.js app with default landing page, layout, and Tailwind setup is in place.
-- Shared utilities now include: `useDebounce`, `useLocalStorage`, `useMediaQuery`, `useAsync`, `apiClient`, `httpRequest` helpers, `useCounterStore`, and `useUiStore` (persisted theme/sidebar).
-- Types expanded with API envelopes/errors/query params; barrel exports refreshed across hooks/lib/stores. Axios moved to runtime dependencies.
-- Added sticky layout chrome with `AppHeader`/`AppFooter` split into focused components (logo, nav, search, social); homepage replaced with a hero-style scaffold that uses the new layout shell.
-- Global theme updated to the new OKLCH palette with Tailwind inline theme mapping (colors, fonts, radius, shadows, sidebar tokens).
-- New `/contact` page added with support + bug-report form, contact channels, and live-help guidance using shared UI components.
-- Theme toggle component added and surfaced in the header and styleguide for light/dark switching.
-- Cookie consent banner with inline management (no dialog); preferences saved to a cookie using shared UI primitives.
-- Homepage hero refreshed to match the provided design: dark background, badge + headline copy, primary/secondary CTAs, avatar cluster with social proof. Removed marquees and floating avatars; hero fills viewport height with fluid background restored and header-offset top padding.
-- App header gains configurable positioning: default sticky/transparent at top, animates to solid on scroll; `disableSticky` prop switches to fixed solid surface. Header height controlled by `--header-height`.
+## Completed Features
 
-## Next Steps
-- Replace placeholder landing page with real product UI once requirements land.
-- Align API types/helpers with backend contracts and extend stores/hooks as features solidify.
+### Pages (All Implemented)
+- [x] Home page with hero, value props, focal point showcase, pricing preview, zone heatmap, urgency section
+- [x] Throne page with competition mechanics, bidding rules, leaderboard
+- [x] Pricing page with 4 packages, calculator widget, comparison table
+- [x] How It Works page with 4-step guide, video placeholder, FAQ
+- [x] Canvas page with full-screen interactive viewer
+- [x] Gallery page with creations grid, filters, throne battle history
+- [x] About page with mission, story, team, timeline, social links
+- [x] Terms of Service page
+- [x] Privacy Policy page
+- [x] Community Guidelines page
+
+### Components (All Implemented)
+- [x] CanvasPreview - Embeddable mini canvas with live activity
+- [x] CanvasViewer - Full-screen canvas with pan/zoom/search
+- [x] PricingCard - Package display with features
+- [x] PricingCalculator - Slider-based recommendation widget
+- [x] ThroneViewer - Current holder display with bids
+- [x] ThroneLeaderboard - Hall of Fame with stats
+- [x] ZoneHeatmap - Interactive zone pricing visual
+- [x] LiveStats - Real-time counters (inline, grid, compact variants)
+- [x] TrustSignals - Hero section social proof
+- [x] StickyCTABar - Scroll-triggered conversion bar
+
+### Data & State
+- [x] useCanvasStore - Pixel grid, activity simulation, viewport
+- [x] useThroneStore - Holder, bids, leaderboard, simulation
+- [x] useStatsStore - Live counters with simulation
+- [x] TypeScript types for all data models
+
+### Infrastructure
+- [x] Motion (Framer Motion) installed and integrated
+- [x] Navigation updated for all new pages
+- [x] Footer updated with all links
+- [x] Branding updated from "Pixel Studio" to "Pixel"
+- [x] Barrel exports updated for all modules
+
+## What's Working
+- All pages render correctly
+- Mock data stores provide simulated real-time updates
+- Canvas viewer supports pan, zoom, and pixel info
+- Animations working with Motion library
+- Responsive design across all pages
+- Dark mode styling consistent throughout
+
+## Known Limitations (Expected)
+- Canvas uses mock data, not connected to backend
+- Payment flow is placeholder (links to /register)
+- User authentication exists but not integrated with canvas
+- Video tutorials are placeholders
+- Gallery images are placeholder gradients
+
+## Next Phases (Future Work)
+1. Backend integration - API client connection, WebSocket for real-time
+2. Payment integration - Stripe checkout flow
+3. Canvas interaction - Pixel placement, color picker, undo
+4. User features - Profile, owned pixels, transaction history
+5. Performance - Canvas rendering optimization, code splitting
+6. Testing - Unit tests, E2E tests, performance benchmarks

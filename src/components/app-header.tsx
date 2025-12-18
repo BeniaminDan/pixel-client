@@ -51,7 +51,7 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
         <Link href="/" className="flex items-center gap-3">
           <Logo className="size-8" />
           <span className="text-xl font-semibold max-sm:hidden">
-            Pixel Studio
+            Pixel
           </span>
         </Link>
 
@@ -97,9 +97,9 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
               <div className="flex items-center gap-3 px-4 pt-4">
                 <Logo className="size-7" />
                 <div>
-                  <p className="text-sm font-semibold">Pixel Studio</p>
+                  <p className="text-sm font-semibold">Pixel</p>
                   <p className="text-muted-foreground text-xs">
-                    Navigation
+                    Own Your Space Forever
                   </p>
                 </div>
               </div>

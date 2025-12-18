@@ -1,15 +1,55 @@
 # Active Context
 
-- Default scaffolding added: hooks (`useLocalStorage`, `useMediaQuery`, `useAsync`), UI store (`useUiStore` with persisted theme/sidebar), HTTP helpers (`httpRequest`, `safeHttpRequest`, `buildQueryString`), and normalized API types/results.
-- Axios moved to runtime dependencies; barrel exports updated for hooks/lib/stores.
-- Current app UI still the Create Next App page; components folder remains empty scaffold.
-- Layout rebuilt with sticky `AppHeader`/`AppFooter` split into dedicated components (logo, nav, search, social); homepage uses the shared layout shell and hero content scaffold.
-- Theme tokens refreshed to the provided OKLCH palette with inline Tailwind theme mapping fonts, radius, and shadow variables.
-- Contact/Support page added under `/contact` using shared shadcn UI primitives (Cards, Inputs, Select, Textarea) to capture support, bug reports, and quick help details.
-- Added global theme toggle component and wired it into the header (replacing Slack icon) and styleguide for light/dark switching.
-- Cookie consent banner with inline management (no dialog), using shared UI components; stores preferences (necessary/analytics/marketing) in a cookie and renders globally via layout.
-- Next focus: apply these utilities to real product features as requirements arrive and keep types aligned with backend contracts.
-- Constraints: follow barrel-export pattern; avoid styling reusable components at call sites per user preference.
-- Home hero refreshed to match reference: dark canvas, centered headline/CTA stack, badge/avatar cluster using shadcn `Badge`, `Button`, and `Avatar` primitives; floating avatars and marquees removed per follow-up.
-- Hero now spans full viewport height (dvh) with fluid background reinstated and top padding based on `--header-height`.
-- Header supports optional non-sticky mode via `disableSticky` prop; default is sticky/transparent at top and shifts to solid on scroll; header height driven by CSS var.
+## Current State
+The Pixel website has been fully implemented with all planned pages and components. The site is now a conversion-optimized platform showcasing the collaborative canvas concept.
+
+## Recently Completed
+- Full website transformation from scaffold to Pixel platform
+- All 10 pages implemented: Home, Throne, Pricing, How It Works, Canvas, Gallery, About, Terms, Privacy, Guidelines
+- Key components built: CanvasPreview, CanvasViewer, PricingCalculator, ThroneLeaderboard, ZoneHeatmap, LiveStats, StickyCTABar
+- Mock data stores with simulated real-time updates (useCanvasStore, useThroneStore, useStatsStore)
+- Motion (Framer Motion) integration for animations
+- Navigation and branding updated throughout
+
+## Key Technical Decisions
+1. **Mock Data Strategy**: Zustand stores with setInterval for simulated real-time activity, designed to be easily replaceable with WebSocket connections to a real backend
+2. **Animation Library**: Using `motion` (Framer Motion) for page transitions, scroll animations, and component reveals; CSS for micro-interactions
+3. **Component Architecture**: Feature-specific component folders (canvas/, pricing/, throne/) with barrel exports
+4. **Conversion Focus**: StickyCTABar component that appears on scroll, prominent CTAs in every section
+
+## File Structure
+```
+src/
+├── app/(main)/
+│   ├── page.tsx              # Home with all sections
+│   ├── throne/               # Throne competition
+│   ├── pricing/              # Credit packages
+│   ├── how-it-works/         # Tutorial and FAQ
+│   ├── canvas/               # Full-screen viewer
+│   ├── gallery/              # Community showcase
+│   ├── about/                # Company info
+│   ├── terms/                # Legal
+│   ├── privacy/              # Legal
+│   └── guidelines/           # Community rules
+├── components/
+│   ├── canvas/               # CanvasPreview, CanvasViewer
+│   ├── pricing/              # PricingCard, PricingCalculator
+│   ├── throne/               # ThroneViewer, ThroneLeaderboard
+│   ├── zone-heatmap.tsx
+│   ├── live-stats.tsx
+│   └── sticky-cta-bar.tsx
+├── stores/
+│   ├── useCanvasStore.ts     # Pixel grid and activity
+│   ├── useThroneStore.ts     # Throne holder and bids
+│   └── useStatsStore.ts      # Live counters
+└── types/
+    └── pixel.ts              # All Pixel-specific types
+```
+
+## Next Steps
+- Connect to real backend API when available
+- Replace mock data stores with WebSocket connections
+- Add actual payment integration (Stripe)
+- Implement pixel placement functionality
+- Add user authentication flows for canvas interaction
+- Performance optimization and testing

@@ -8,10 +8,11 @@ type NavItem = {
 }
 
 export const navItems: NavItem[] = [
-  { label: "Home", href: "#" },
-  { label: "Dashboard", href: "#" },
-  { label: "Pricing", href: "#" },
-  { label: "Product Details", href: "#" },
+  { label: "How It Works", href: "/how-it-works" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Throne", href: "/throne" },
+  { label: "Canvas", href: "/canvas" },
+  { label: "Gallery", href: "/gallery" },
 ]
 
 export function NavMenu({ className }: { className?: string }) {
