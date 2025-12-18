@@ -1,4 +1,4 @@
-import { auth } from "@/auth"
+import { auth } from "@/lib/auth"
 import { cookies } from "next/headers"
 import { decode } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"

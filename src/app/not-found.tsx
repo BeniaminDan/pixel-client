@@ -1,11 +1,9 @@
 import Link from 'next/link'
-import { Home, Search } from 'lucide-react'
 
 import { AppFooter, AppHeader } from '@/components'
 import { ClientActionButton } from '@/components/client-action-button'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { auth } from '@/auth'
+import { auth } from "@/lib/auth"
 
 export default async function NotFound() {
   const session = await auth()

@@ -14,4 +14,6 @@ export * from './http'
 export * from './fluid-shaders'
 export * from './fluid-webgl'
 export * from './auth-popup'
+export * from './auth'
+export * from './color-utils'
 // export * from './dateUtils'; // Uncomment/add when created

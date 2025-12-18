@@ -2,4 +2,4 @@
  * @fileoverview Barrel file for services.
  */
 
-export * from './account'
+export * from '@/features/auth/api/services/account'

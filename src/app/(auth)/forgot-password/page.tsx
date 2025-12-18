@@ -4,11 +4,11 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { ArrowLeft, Loader2, Mail } from "lucide-react"
 
-import { forgotPasswordAction } from "@/actions/account"
+import { forgotPasswordAction } from "@/features/auth/api/actions/account"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AuthMarketingPanel } from "@/components/auth/auth-marketing-panel"
+import { AuthMarketingPanel } from "@/features/auth/components/auth-marketing-panel"
 
 export default function ForgotPasswordPage() {
   const [emailSent, setEmailSent] = useState(false)

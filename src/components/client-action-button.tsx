@@ -6,7 +6,7 @@ import { ArrowLeft, RefreshCw, Home, Search } from 'lucide-react'
 import type { VariantProps } from 'class-variance-authority'
 
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/cn'
 
 type ActionType = 'back' | 'refresh' | 'home' | 'search'
 

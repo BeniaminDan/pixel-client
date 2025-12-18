@@ -38,10 +38,10 @@ export function openAuthPopup(
   const { left, top } = getPopupPosition(width, height)
 
   // Build the sign-in URL using a helper page that triggers Auth.js signIn
-  // This is necessary because Auth.js v5 doesn't support /api/auth/signin/[provider] URLs
+  // This is necessary because Auth.js v5 doesn't support /api/auth/signin/[providers] URLs
   const popupCallbackUrl = `/api/auth/popup-callback?returnTo=${encodeURIComponent(callbackUrl)}`
   
-  // Create a URL to a page that will call signIn() with the provider
+  // Create a URL to a page that will call signIn() with the providers
   const signInUrl = new URL("/login", window.location.origin)
   signInUrl.searchParams.set("provider", provider)
   signInUrl.searchParams.set("callbackUrl", popupCallbackUrl)

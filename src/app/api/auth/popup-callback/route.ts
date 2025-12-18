@@ -1,4 +1,4 @@
-import { auth } from "@/auth"
+import { auth } from "@/lib/auth"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
@@ -49,8 +49,8 @@ export async function GET(req: NextRequest) {
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="spinner"></div>
+  <div className="container">
+    <div className="spinner"></div>
     <p>Completing authentication...</p>
   </div>
   <script>

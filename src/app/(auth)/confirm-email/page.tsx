@@ -5,11 +5,11 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Loader2, CheckCircle, XCircle, Mail } from "lucide-react"
 
-import { confirmEmailAction, resendConfirmationAction } from "@/actions/account"
+import { confirmEmailAction, resendConfirmationAction } from "@/features/auth/api/actions/account"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AuthMarketingPanel } from "@/components/auth/auth-marketing-panel"
+import { AuthMarketingPanel } from "@/features/auth/components/auth-marketing-panel"
 
 type ConfirmationState = "loading" | "success" | "error" | "expired"
 

@@ -20,31 +20,44 @@ export * from "./ui/switch"
 export * from "./ui/table"
 export * from "./ui/tabs"
 export * from "./ui/textarea"
+
+// Shared Components
 export * from "./theme-toggle"
 export * from "./cookie-consent"
 export * from "./logo"
-export * from "./nav-menu"
 export * from "./search-field"
 export * from "./social-links"
-export * from "./app-header"
-export * from "./app-footer"
-export * from "./fluid-hero-background"
-export * from "./user-menu"
+export * from "./client-action-button"
+
+// Layout Components
+export * from "./layouts/app-header"
+export * from "./layouts/app-footer"
+export * from "./layouts/nav-menu"
+export * from "./layouts/user-menu"
+export * from "./layouts/sticky-header-wrapper"
 
 // Auth Components
-export * from "./auth/session-provider"
-export * from "./auth/auth-marketing-panel"
+// (Note: Auth components are usually imported from @/features/auth, but keeping re-exports if needed for b/w compatibility or convenience)
+// export * from "@/features/auth/components/session-providers" // If this existed
+export * from "@/features/auth/components/auth-marketing-panel"
 
-// Canvas Components
-export * from "./canvas"
+// Providers
+export * from "./providers/session-provider"
+export * from "./providers/theme-provider"
 
-// Pricing Components
-export * from "./pricing"
-
-// Throne Components
-export * from "./throne"
-
-// Feature Components
+// Canvas/Visual Components
+// export * from "./canvas" // Removed as file not found in list_dir
+export * from "./fluid-hero-background"
 export * from "./zone-heatmap"
 export * from "./live-stats"
 export * from "./sticky-cta-bar"
+export * from "./throne-viewer"
+export * from "./canvas-preview"
+
+export * from "./pricing-card"
+
+// Pricing Components
+// export * from "./pricing" // Removed as file not found in list_dir, likely meant to be in features or not created yet
+
+// Throne Components
+// export * from "./throne" // Removed as file not found in list_dir
