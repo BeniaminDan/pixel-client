@@ -18,7 +18,7 @@ export const navItems: NavItem[] = [
 export function NavMenu({ className }: { className?: string }) {
   return (
     <nav className={className} aria-label="Primary">
-      <div className="text-muted-foreground flex items-center gap-6 text-sm font-medium">
+      <div className="text-muted-foreground flex items-center gap-6 text-sm px-4 font-medium">
         {navItems.map((item) => (
           <Link
             key={item.label}

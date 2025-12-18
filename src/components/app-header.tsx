@@ -1,15 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Menu, Search } from "lucide-react"
+import { ArrowRight, Menu } from "lucide-react"
 
 import { useScrollThreshold } from "@/hooks"
 import { Logo } from "@/components/logo"
 import { NavMenu, navItems } from "@/components/nav-menu"
-import { SearchField } from "@/components/search-field"
-import { SocialLinks } from "@/components/social-links"
 import { UserMenu } from "@/components/user-menu"
-import { Button } from "@/components/ui/button"
+import {Button} from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -51,19 +49,16 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
       <div className="container flex items-center justify-between gap-6 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Logo className="size-8" />
-          <span className="text-xl font-semibold max-sm:hidden">
-            Pixel
+          <span className="text-xl font-semibold">
+            Pixel Studio
           </span>
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">
-          <div className="bg-muted flex items-center gap-6 rounded-md px-5 py-2.5">
+          <div className="bg-muted flex items-center rounded-md">
             <NavMenu />
-            <SearchField className="max-xl:hidden w-64" />
-            <div className="flex items-center gap-2 max-xl:hidden">
-              <SocialLinks />
-              <ThemeToggle />
-            </div>
+
+            <ThemeToggle />
           </div>
 
           <div className="flex items-center gap-3">
@@ -81,10 +76,7 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
-          <Button variant="ghost" size="icon" aria-label="Search">
-            <Search className="size-4" />
-          </Button>
-          <SocialLinks className="max-sm:hidden" />
+          <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" aria-label="Open menu">
@@ -98,14 +90,11 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
               <div className="flex items-center gap-3 px-4 pt-4">
                 <Logo className="size-7" />
                 <div>
-                  <p className="text-sm font-semibold">Pixel</p>
+                  <p className="text-sm font-semibold">Pixel Studios</p>
                   <p className="text-muted-foreground text-xs">
                     Own Your Space Forever
                   </p>
                 </div>
-              </div>
-              <div className="px-4">
-                <SearchField className="mt-4" />
               </div>
               <div className="flex flex-col gap-2 px-4 py-6">
                 {navItems.map((item) => (
@@ -117,9 +106,6 @@ export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
                     {item.label}
                   </Link>
                 ))}
-              </div>
-              <div className="px-4">
-                <SocialLinks />
               </div>
               <div className="grid grid-cols-2 gap-2 px-4 pb-6 pt-4">
                 {user ? (

@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <main className="relative flex min-h-screen flex-col bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative isolate flex min-h-[100dvh] w-full items-center overflow-hidden pt-header pb-12 sm:pb-16 lg:pb-24">
+      <section className="relative isolate flex min-h-[100dvh] w-full items-center overflow-hidden pt-24 pb-12 sm:pb-16 lg:pb-24">
         <FluidHeroBackground
           config={{
             BACK_TRANSPARENT: true,
@@ -149,16 +149,17 @@ export default function Home() {
               <TrustSignals className="mt-4" />
             </motion.div>
           </div>
-
-          {/* Live Canvas Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <CanvasPreview size="lg" showControls={true} />
-          </motion.div>
         </div>
+
+        {/* Live Canvas Preview */}
+        {/*<motion.div*/}
+        {/*  className="absolute bottom-0"*/}
+        {/*  initial={{ opacity: 0, y: 40 }}*/}
+        {/*  animate={{ opacity: 1, y: 0 }}*/}
+        {/*  transition={{ duration: 0.8, delay: 0.4 }}*/}
+        {/*>*/}
+        {/*  <CanvasPreview size="lg" showControls={true} />*/}
+        {/*</motion.div>*/}
       </section>
 
       {/* Focal Point Showcase */}
