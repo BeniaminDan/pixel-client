@@ -206,6 +206,7 @@ const config: NextAuthConfig = {
       id: "openiddict",
       name: "OpenIddict",
       type: "oauth",
+      issuer: OPENIDDICT_ISSUER, // Must match the 'iss' parameter returned by OpenIddict
       clientId: OPENIDDICT_CLIENT_ID,
       clientSecret: OPENIDDICT_CLIENT_SECRET,
       authorization: {
@@ -334,18 +335,6 @@ const config: NextAuthConfig = {
       }
 
       return session
-    },
-  },
-
-  logger: {
-    error(code, ...message) {
-      console.error(code, message)
-    },
-    warn(code, ...message) {
-      console.warn(code, message)
-    },
-    debug(code, ...message) {
-      console.debug(code, message)
     },
   },
 }
