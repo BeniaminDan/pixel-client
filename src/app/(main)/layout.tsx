@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
-import { AppFooter, AppHeader } from "@/components"
+import { AppFooter } from "@/components"
+import { StickyHeaderWrapper } from "@/components/sticky-header-wrapper"
 
 export default async function MainLayout({
   children,
@@ -10,7 +11,7 @@ export default async function MainLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <AppHeader isStickyEnabled={true} user={session?.user} />
+      <StickyHeaderWrapper user={session?.user} />
       <main className="flex-1">
         {children}
       </main>

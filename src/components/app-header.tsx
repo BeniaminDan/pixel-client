@@ -31,21 +31,22 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ isStickyEnabled = true, user }: AppHeaderProps) {
-  const hasScrolled = useScrollThreshold(50, isStickyEnabled)
+  const hasScrolled = useScrollThreshold(50, true)
 
   const positioningClass = isStickyEnabled
-    ? "fixed top-0 z-50 w-full"
-    : "relative w-full"
+    ? "fixed top-0"
+    : "sticky top-0"
   const surfaceClass = isStickyEnabled
     ? hasScrolled
       ? "bg-background text-foreground shadow-md"
       : "bg-transparent text-foreground"
-    : "bg-background text-foreground"
-  const transitionClass = isStickyEnabled ? "transition-all duration-500" : ""
+    : hasScrolled
+      ? "bg-background text-foreground"
+      : "bg-background text-foreground"
 
   return (
     <header
-      className={`${positioningClass} ${surfaceClass} ${transitionClass} z-50`}
+      className={`${positioningClass} ${surfaceClass} w-full transition-all duration-500 z-50`}
     >
       <div className="container flex items-center justify-between gap-6 py-3">
         <Link href="/" className="flex items-center gap-3">
