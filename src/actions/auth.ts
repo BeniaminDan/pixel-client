@@ -1,6 +1,6 @@
 "use server"
 
-import { signIn, signOut } from "@/auth"
+import { signIn, signOut, clearRefreshTokenCookie } from "@/auth"
 
 /**
  * Sign in using OAuth provider (opens redirect flow)
@@ -22,5 +22,7 @@ export async function loginAction() {
  * Sign out and redirect to specified URL
  */
 export async function logoutAction(redirectTo: string = "/") {
+  // Clear refresh token cookie before signing out
+  await clearRefreshTokenCookie()
   await signOut({ redirectTo })
 }

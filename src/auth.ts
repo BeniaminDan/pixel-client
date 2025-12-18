@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { NextAuthConfig, User } from "next-auth"
 import type { JWT } from "next-auth/jwt"
+import { cookies } from "next/headers"
 
 /** Extended user type with credential tokens */
 interface CredentialUser extends User {
@@ -10,15 +11,94 @@ interface CredentialUser extends User {
   expiresIn: number
 }
 
+/**
+ * Decode JWT token payload without verification
+ * Note: This is safe because we only decode tokens we received directly from our trusted auth server
+ */
+function decodeJwtPayload(token: string): any {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      Buffer.from(base64, 'base64')
+        .toString()
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('Failed to decode JWT payload:', error)
+    return null
+  }
+}
+
 const OPENIDDICT_ISSUER = process.env.OPENIDDICT_ISSUER
 const OPENIDDICT_CLIENT_ID = process.env.OPENIDDICT_CLIENT_ID
 const OPENIDDICT_CLIENT_SECRET = process.env.OPENIDDICT_CLIENT_SECRET
+
+/**
+ * Get refresh token from HTTP-only cookie
+ */
+async function getRefreshTokenFromCookie(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const refreshToken =
+      cookieStore.get("refresh-token")?.value ||
+      cookieStore.get("__Secure-refresh-token")?.value
+    return refreshToken || null
+  } catch (error) {
+    console.error("Error getting refresh token from cookie:", error)
+    return null
+  }
+}
+
+/**
+ * Set refresh token in HTTP-only cookie
+ */
+async function setRefreshTokenCookie(refreshToken: string): Promise<void> {
+  try {
+    const cookieStore = await cookies()
+    const cookieName =
+      process.env.NODE_ENV === "production" ? "__Secure-refresh-token" : "refresh-token"
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: "/",
+    }
+
+    cookieStore.set(cookieName, refreshToken, cookieOptions)
+  } catch (error) {
+    console.error("Error setting refresh token cookie:", error)
+  }
+}
+
+/**
+ * Clear refresh token cookie
+ */
+async function clearRefreshTokenCookie(): Promise<void> {
+  try {
+    const cookieStore = await cookies()
+    cookieStore.delete("refresh-token")
+    cookieStore.delete("__Secure-refresh-token")
+  } catch (error) {
+    console.error("Error clearing refresh token cookie:", error)
+  }
+}
 
 /**
  * Refresh an access token using the refresh token grant
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
+    // Get refresh token from cookie instead of JWT token
+    const refreshToken = await getRefreshTokenFromCookie()
+    if (!refreshToken) {
+      throw new Error("No refresh token available")
+    }
+
     const tokenEndpoint = `${OPENIDDICT_ISSUER}api/auth/connect/token`
 
     const response = await fetch(tokenEndpoint, {
@@ -30,7 +110,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
         grant_type: "refresh_token",
         client_id: OPENIDDICT_CLIENT_ID!,
         client_secret: OPENIDDICT_CLIENT_SECRET!,
-        refresh_token: token.refreshToken!,
+        refresh_token: refreshToken,
       }),
     })
 
@@ -51,15 +131,21 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       throw new Error(refreshedTokens.error || "Failed to refresh token")
     }
 
+    // Update refresh token cookie if a new one is provided
+    if (refreshedTokens.refresh_token) {
+      await setRefreshTokenCookie(refreshedTokens.refresh_token)
+    }
+
     return {
       ...token,
       accessToken: refreshedTokens.access_token,
       accessTokenExpiresAt: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
       error: undefined,
     }
   } catch (error) {
     console.error("Error refreshing access token:", error)
+    // Clear refresh token cookie on error
+    await clearRefreshTokenCookie()
     return {
       ...token,
       error: "RefreshTokenError",
@@ -255,13 +341,17 @@ const config: NextAuthConfig = {
 
         console.log("Credentials authorize: Authentication successful for", credentials.email)
 
+        // Store refresh token in HTTP-only cookie to reduce session cookie size
+        await setRefreshTokenCookie(result.refreshToken)
+
         // Return user object with tokens attached for JWT callback
+        // Note: refreshToken is stored in cookie, not in the returned user object
         return {
           id: result.user.id,
           email: result.user.email,
           name: result.user.name,
           accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
+          refreshToken: result.refreshToken, // Still passed for JWT callback, but won't be stored in JWT
           expiresIn: result.expiresIn,
         } as CredentialUser
       },
@@ -279,23 +369,57 @@ const config: NextAuthConfig = {
     async jwt({ token, user, account }) {
       // Initial sign in via OAuth
       if (account && account.provider === "openiddict") {
+        // Store refresh token in HTTP-only cookie
+        if (account.refresh_token) {
+          await setRefreshTokenCookie(account.refresh_token)
+        }
+        // Store accessToken in JWT
         token.accessToken = account.access_token
-        token.refreshToken = account.refresh_token
         token.accessTokenExpiresAt = account.expires_at
           ? account.expires_at * 1000
           : Date.now() + 3600 * 1000
+        
+        // Decode access token to extract role and permissions
+        if (account.access_token) {
+          const payload = decodeJwtPayload(account.access_token)
+          if (payload) {
+            token.sub = payload.sub
+            token.email = payload.email
+            token.name = payload.name
+            token.role = payload.role
+            token.permissions = Array.isArray(payload.permission) 
+              ? payload.permission 
+              : payload.permission 
+                ? [payload.permission] 
+                : []
+          }
+        }
+        
         return token
       }
 
       // Initial sign in via credentials
       if (user && "accessToken" in user) {
         const credentialUser = user as CredentialUser
+        // Refresh token is already stored in cookie by authorize function
+        // Store accessToken in JWT
         token.accessToken = credentialUser.accessToken
-        token.refreshToken = credentialUser.refreshToken
         token.accessTokenExpiresAt = Date.now() + credentialUser.expiresIn * 1000
         token.sub = credentialUser.id
         token.email = credentialUser.email
         token.name = credentialUser.name
+        
+        // Decode access token to extract role and permissions
+        const payload = decodeJwtPayload(credentialUser.accessToken)
+        if (payload) {
+          token.role = payload.role
+          token.permissions = Array.isArray(payload.permission) 
+            ? payload.permission 
+            : payload.permission 
+              ? [payload.permission] 
+              : []
+        }
+        
         return token
       }
 
@@ -305,8 +429,25 @@ const config: NextAuthConfig = {
       }
 
       // Access token has expired, try to refresh it
-      if (token.refreshToken) {
-        return await refreshAccessToken(token)
+      // refreshAccessToken will get refreshToken from cookie
+      const refreshToken = await getRefreshTokenFromCookie()
+      if (refreshToken) {
+        const refreshedToken = await refreshAccessToken(token)
+        
+        // Decode the new access token to update role and permissions
+        if (refreshedToken.accessToken && !refreshedToken.error) {
+          const payload = decodeJwtPayload(refreshedToken.accessToken)
+          if (payload) {
+            refreshedToken.role = payload.role
+            refreshedToken.permissions = Array.isArray(payload.permission) 
+              ? payload.permission 
+              : payload.permission 
+                ? [payload.permission] 
+                : []
+          }
+        }
+        
+        return refreshedToken
       }
 
       return token
@@ -328,6 +469,12 @@ const config: NextAuthConfig = {
       if (token.picture) {
         session.user.image = token.picture
       }
+      if (token.role) {
+        session.user.role = token.role
+      }
+      if (token.permissions) {
+        session.user.permissions = token.permissions
+      }
 
       // Expose error state for client-side handling
       if (token.error) {
@@ -340,6 +487,9 @@ const config: NextAuthConfig = {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)
+
+// Export clearRefreshTokenCookie for use in logout actions
+export { clearRefreshTokenCookie }
 
 // Export for server-side token access (e.g., in API proxy)
 export async function getAccessToken(): Promise<string | null> {

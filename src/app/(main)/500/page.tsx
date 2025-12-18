@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import { ServerOff, Home } from 'lucide-react'
+import { ServerOff } from 'lucide-react'
 
 import { ClientActionButton } from '@/components/client-action-button'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function ServerError() {

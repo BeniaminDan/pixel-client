@@ -34,6 +34,7 @@ export default async function ProfilePage() {
           }}
         />
       </div>
+      <pre>{JSON.stringify(session)}</pre>
     </div>
   )
 }
