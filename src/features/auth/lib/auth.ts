@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { NextAuthConfig, User } from "next-auth"
 import type { JWT } from "next-auth/jwt"
-import { authTokenClient, authJsonClient, createTokenParams, extractOAuth2Error, type OAuth2TokenResponse } from "./authClient"
+import { authTokenClient, authJsonClient, createTokenParams, extractOAuth2Error, type OAuth2TokenResponse } from "@/lib/authClient"
 
 /**
  * Constants

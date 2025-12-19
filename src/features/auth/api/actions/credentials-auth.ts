@@ -1,9 +1,7 @@
 "use server"
 
-import { signIn } from "@/lib/auth"
-import { AuthService } from "@/services/auth.service"
-import { createPublicClient } from "@/lib/api/factory"
-import { handleApiErrorSilently } from "@/lib/api/errors"
+import { signIn } from "@/features/auth/lib/auth"
+import { register } from "@/features/auth/api/services/account"
 import type { ServiceResult } from "@/features/auth/types"
 
 /**
@@ -44,36 +42,5 @@ export async function registerUser(data: {
   confirmPassword: string
   name?: string
 }): Promise<ServiceResult> {
-  try {
-    // Validate passwords match
-    if (data.password !== data.confirmPassword) {
-      return {
-        success: false,
-        error: "Passwords do not match",
-      }
-    }
-
-    // Create auth service instance
-    const authService = new AuthService(createPublicClient())
-
-    // Register the user
-    await authService.register({
-      email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      name: data.name,
-    })
-
-    // Registration successful - user needs to confirm email
-    return {
-      success: true,
-    }
-  } catch (error) {
-    const apiError = handleApiErrorSilently(error)
-    return {
-      success: false,
-      error: apiError.userMessage,
-      errors: apiError.details,
-    }
-  }
+  return register(data)
 }

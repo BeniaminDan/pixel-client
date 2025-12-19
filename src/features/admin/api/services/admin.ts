@@ -27,7 +27,7 @@ function createServerAdminClient() {
     attachAuthInterceptor(client, {
         getToken: createServerTokenGetter(),
         refreshToken: async () => {
-            const { refreshServerAccessToken } = await import('@/lib/auth')
+            const { refreshServerAccessToken } = await import('@/features/auth/lib/auth')
             return refreshServerAccessToken()
         },
         autoRefresh: true,

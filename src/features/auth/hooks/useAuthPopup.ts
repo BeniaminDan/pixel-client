@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { signInWithPopup, type AuthPopupResult } from "@/lib/auth-popup"
+import { signInWithPopup, type AuthPopupResult } from "@/features/auth/lib/auth-popup"
 
 export interface UseAuthPopupOptions {
   /** URL to redirect to after successful authentication */

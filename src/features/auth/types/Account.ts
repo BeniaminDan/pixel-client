@@ -8,7 +8,7 @@ export type {
 
 export type {
   ResetPasswordData,
-} from '@/services/auth.service'
+} from '@/services/account-setup.service'
 
 /**
  * ServiceResult type used for server action return values

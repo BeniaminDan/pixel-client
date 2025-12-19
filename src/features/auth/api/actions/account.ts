@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { signOut } from "@/lib/auth"
+import { signOut } from "@/features/auth/lib/auth"
 import {
   confirmEmail,
   resendConfirmation,

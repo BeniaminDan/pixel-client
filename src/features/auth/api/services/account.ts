@@ -5,7 +5,7 @@
  */
 
 import type { UserProfile, UpdateProfileData, ChangePasswordData, ResetPasswordData, ServiceResult } from "@/features/auth/types"
-import { AuthService } from "@/services/auth.service"
+import { AccountSetupService } from "@/services/account-setup.service"
 import { AccountService } from "@/services/account.service"
 import { createAuthenticatedClient, createPublicClient } from "@/lib/api/factory"
 import { attachAuthInterceptor, createServerTokenGetter } from "@/lib/api/interceptors"
@@ -20,7 +20,7 @@ function createServerAuthenticatedClient() {
     getToken: createServerTokenGetter(),
     refreshToken: async () => {
       // Import dynamically to avoid circular dependencies
-      const { refreshServerAccessToken } = await import('@/lib/auth')
+      const { refreshServerAccessToken } = await import('@/features/auth/lib/auth')
       return refreshServerAccessToken()
     },
     autoRefresh: true,
@@ -29,10 +29,10 @@ function createServerAuthenticatedClient() {
 }
 
 /**
- * Create server-side auth service
+ * Create server-side account setup service
  */
-function createServerAuthService() {
-  return new AuthService(createPublicClient())
+function createServerAccountSetupService() {
+  return new AccountSetupService(createPublicClient())
 }
 
 /**
@@ -47,6 +47,34 @@ function createServerAccountService() {
 // ============================================================================
 
 /**
+ * Register a new user account
+ */
+export async function register(data: {
+  email: string
+  password: string
+  confirmPassword: string
+  name?: string
+}): Promise<ServiceResult> {
+  try {
+    // Validate passwords match
+    if (data.password !== data.confirmPassword) {
+      return { success: false, error: "Passwords do not match" }
+    }
+
+    const accountSetupService = createServerAccountSetupService()
+    await accountSetupService.register(data)
+    return { success: true }
+  } catch (error) {
+    const apiError = handleApiErrorSilently(error)
+    return {
+      success: false,
+      error: apiError.userMessage,
+      errors: apiError.details
+    }
+  }
+}
+
+/**
  * Confirm email address with token
  */
 export async function confirmEmail(
@@ -54,8 +82,8 @@ export async function confirmEmail(
   token: string
 ): Promise<ServiceResult> {
   try {
-    const authService = createServerAuthService()
-    await authService.confirmEmail({ userId, token })
+    const accountSetupService = createServerAccountSetupService()
+    await accountSetupService.confirmEmail({ userId, token })
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
@@ -68,8 +96,8 @@ export async function confirmEmail(
  */
 export async function resendConfirmation(email: string): Promise<ServiceResult> {
   try {
-    const authService = createServerAuthService()
-    await authService.resendConfirmation(email)
+    const accountSetupService = createServerAccountSetupService()
+    await accountSetupService.resendConfirmation(email)
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
@@ -82,8 +110,8 @@ export async function resendConfirmation(email: string): Promise<ServiceResult> 
  */
 export async function forgotPassword(email: string): Promise<ServiceResult> {
   try {
-    const authService = createServerAuthService()
-    await authService.forgotPassword({ email })
+    const accountSetupService = createServerAccountSetupService()
+    await accountSetupService.forgotPassword({ email })
     // Always return success to prevent email enumeration
     return { success: true }
   } catch (error) {
@@ -101,8 +129,14 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
       return { success: false, error: "Passwords do not match" }
     }
 
-    const authService = createServerAuthService()
-    await authService.resetPassword(data)
+    const { email, token, newPassword, confirmNewPassword } = data;
+    const accountSetupService = createServerAccountSetupService()
+    await accountSetupService.resetPassword({
+      email,
+      token,
+      newPassword,
+      confirmNewPassword,
+    })
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)

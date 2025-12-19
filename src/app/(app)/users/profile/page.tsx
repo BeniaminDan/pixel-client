@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { auth } from "@/lib/auth"
+import { auth } from "@/features/auth/lib/auth"
 import { getProfileAction } from "@/features/auth/api/actions/account"
 import { ProfileForm } from "./_components/profile-form"
 

@@ -13,9 +13,8 @@
 // export * from './apiClient' // DEPRECATED: Use @/lib/api/factory
 // export * from './http' // DEPRECATED: Use @/services
 
-export * from './fluid-shaders'
-export * from './fluid-webgl'
-export * from './auth-popup'
-export * from './auth'
 export * from './color-utils'
+
+// Auth exports moved to @/features/auth/lib/
+// import from '@/features/auth/lib/auth' or '@/features/auth/lib/auth-popup'
 

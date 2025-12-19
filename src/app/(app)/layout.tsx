@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth"
+import { auth } from "@/features/auth/lib/auth"
 import { AppFooter } from "@/components"
 import { StickyHeaderWrapper } from "@/components/layouts/sticky-header-wrapper"
 

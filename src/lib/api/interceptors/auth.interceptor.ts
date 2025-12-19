@@ -180,13 +180,13 @@ export function createServerTokenGetter(): TokenGetter {
 
     try {
       // Dynamically import to avoid client-side issues
-      const { auth } = await import('@/lib/auth')
+      const { auth } = await import('@/features/auth/lib/auth')
       const session = await auth()
-      
+
       // Get token from session JWT
       const { cookies } = await import('next/headers')
       const { decode } = await import('next-auth/jwt')
-      
+
       const cookieStore = await cookies()
       const sessionToken =
         cookieStore.get('authjs.session-token')?.value ||

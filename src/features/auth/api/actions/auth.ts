@@ -1,6 +1,6 @@
 "use server"
 
-import { signIn, signOut } from "@/lib/auth"
+import { signIn, signOut } from "@/features/auth/lib/auth"
 
 /**
  * Sign in using OAuth providers (opens redirect flow)

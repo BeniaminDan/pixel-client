@@ -3,7 +3,7 @@
  */
 
 export * from './base.service'
-export * from './auth.service'
+export * from './account-setup.service'
 export * from './account.service'
 export * from './pixel.service'
 export * from './throne.service'
@@ -18,10 +18,9 @@ export type {
 } from './account.service'
 
 export type {
-    LoginCredentials,
     RegisterData,
     ForgotPasswordData,
     ResetPasswordData,
     AuthResponse,
     EmailConfirmationData,
-} from './auth.service'
+} from './account-setup.service'
