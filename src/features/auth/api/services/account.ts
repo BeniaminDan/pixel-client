@@ -5,42 +5,10 @@
 
 import { cookies } from "next/headers"
 import { decode } from "next-auth/jwt"
+import type { UserProfile, UpdateProfileData, ChangePasswordData, ResetPasswordData, ServiceResult } from "@/features/auth/types"
 
 const API_BASE = process.env.API_BASE_URL + "auth/"
 
-export interface UserProfile {
-  id: string
-  email: string
-  name?: string
-  emailConfirmed: boolean
-  createdAt: string
-  updatedAt?: string
-}
-
-export interface UpdateProfileData {
-  name?: string
-  // Add other updatable fields as needed
-}
-
-export interface ChangePasswordData {
-  currentPassword: string
-  newPassword: string
-  confirmNewPassword: string
-}
-
-export interface ResetPasswordData {
-  email: string
-  token: string
-  newPassword: string
-  confirmNewPassword: string
-}
-
-export interface ServiceResult<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-  errors?: Record<string, string[]>
-}
 
 /**
  * Get the access token from the NextAuth JWT cookie
@@ -162,7 +130,7 @@ export async function confirmEmail(
  */
 export async function resendConfirmation(email: string): Promise<ServiceResult> {
   try {
-    const response = await publicFetch("/account/resend-confirmation", {
+    const response = await publicFetch("account/resend-confirmation", {
       method: "POST",
       body: JSON.stringify({ email }),
     })
@@ -184,7 +152,7 @@ export async function resendConfirmation(email: string): Promise<ServiceResult> 
  */
 export async function forgotPassword(email: string): Promise<ServiceResult> {
   try {
-    await publicFetch("/account/forgot-password", {
+    await publicFetch("account/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email }),
     })
@@ -208,7 +176,7 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
       return { success: false, error: "Passwords do not match" }
     }
 
-    const response = await publicFetch("/account/reset-password", {
+    const response = await publicFetch("account/reset-password", {
       method: "POST",
       body: JSON.stringify({
         email: data.email,
@@ -238,7 +206,7 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
  */
 export async function getProfile(): Promise<ServiceResult<UserProfile>> {
   try {
-    const response = await authenticatedFetch("/account/me")
+    const response = await authenticatedFetch("account/me")
 
     if (!response.ok) {
       const { error } = await parseErrorResponse(response)
@@ -260,7 +228,7 @@ export async function updateProfile(
   data: UpdateProfileData
 ): Promise<ServiceResult<UserProfile>> {
   try {
-    const response = await authenticatedFetch("/account/me", {
+    const response = await authenticatedFetch("account/me", {
       method: "PUT",
       body: JSON.stringify(data),
     })
@@ -289,7 +257,7 @@ export async function changePassword(
       return { success: false, error: "New passwords do not match" }
     }
 
-    const response = await authenticatedFetch("/account/change-password", {
+    const response = await authenticatedFetch("account/change-password", {
       method: "POST",
       body: JSON.stringify({
         currentPassword: data.currentPassword,
@@ -314,7 +282,7 @@ export async function changePassword(
  */
 export async function deleteAccount(password?: string): Promise<ServiceResult> {
   try {
-    const response = await authenticatedFetch("/account/me", {
+    const response = await authenticatedFetch("account/me", {
       method: "DELETE",
       body: password ? JSON.stringify({ password }) : undefined,
     })
@@ -336,7 +304,7 @@ export async function deleteAccount(password?: string): Promise<ServiceResult> {
  */
 export async function refreshEmail(newEmail: string): Promise<ServiceResult> {
   try {
-    const response = await authenticatedFetch("/account/refresh-email", {
+    const response = await authenticatedFetch("account/refresh-email", {
       method: "POST",
       body: JSON.stringify({ newEmail }),
     })

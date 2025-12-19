@@ -11,11 +11,19 @@ interface CredentialUser extends User {
   expiresIn: number
 }
 
+interface JwtPayload {
+  sub: string
+  email: string
+  name: string
+  role: string
+  permission: string | string[]
+}
+
 /**
  * Decode JWT token payload without verification
  * Note: This is safe because we only decode tokens we received directly from our trusted auth server
  */
-function decodeJwtPayload(token: string): any {
+function decodeJwtPayload(token: string): JwtPayload | null {
   try {
     const base64Url = token.split('.')[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')

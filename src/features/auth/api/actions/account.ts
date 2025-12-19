@@ -3,30 +3,18 @@
 import { revalidatePath } from "next/cache"
 import { signOut } from "@/lib/auth"
 import {
-  confirmEmail as confirmEmailService,
-  resendConfirmation as resendConfirmationService,
-  forgotPassword as forgotPasswordService,
-  resetPassword as resetPasswordService,
-  getProfile as getProfileService,
-  updateProfile as updateProfileService,
-  changePassword as changePasswordService,
-  deleteAccount as deleteAccountService,
-  refreshEmail as refreshEmailService,
-  type UserProfile,
-  type UpdateProfileData,
-  type ChangePasswordData,
-  type ResetPasswordData,
-  type ServiceResult,
+  confirmEmail,
+  resendConfirmation,
+  forgotPassword,
+  resetPassword,
+  getProfile,
+  updateProfile,
+  changePassword,
+  deleteAccount,
+  refreshEmail,
 } from "@/features/auth/api/services/account"
 
-// Re-export types for convenience
-export type {
-  UserProfile,
-  UpdateProfileData,
-  ChangePasswordData,
-  ResetPasswordData,
-  ServiceResult,
-}
+import type { UserProfile, UpdateProfileData, ChangePasswordData, ResetPasswordData, ServiceResult } from "@/features/auth/types"
 
 // ============================================================================
 // Public (unauthenticated) actions
@@ -39,7 +27,7 @@ export async function confirmEmailAction(
   userId: string,
   token: string
 ): Promise<ServiceResult> {
-  return confirmEmailService(userId, token)
+  return confirmEmail(userId, token)
 }
 
 /**
@@ -48,14 +36,14 @@ export async function confirmEmailAction(
 export async function resendConfirmationAction(
   email: string
 ): Promise<ServiceResult> {
-  return resendConfirmationService(email)
+  return resendConfirmation(email)
 }
 
 /**
  * Forgot password action - sends reset email
  */
 export async function forgotPasswordAction(email: string): Promise<ServiceResult> {
-  return forgotPasswordService(email)
+  return forgotPassword(email)
 }
 
 /**
@@ -70,7 +58,7 @@ export async function forgotPasswordFormAction(
     return { success: false, error: "Email is required" }
   }
 
-  return forgotPasswordService(email)
+  return forgotPassword(email)
 }
 
 /**
@@ -79,7 +67,7 @@ export async function forgotPasswordFormAction(
 export async function resetPasswordAction(
   data: ResetPasswordData
 ): Promise<ServiceResult> {
-  return resetPasswordService(data)
+  return resetPassword(data)
 }
 
 /**
@@ -97,7 +85,7 @@ export async function resetPasswordFormAction(
     return { success: false, error: "All fields are required" }
   }
 
-  return resetPasswordService({
+  return resetPassword({
     email,
     token,
     newPassword,
@@ -113,7 +101,7 @@ export async function resetPasswordFormAction(
  * Get current user profile action
  */
 export async function getProfileAction(): Promise<ServiceResult<UserProfile>> {
-  return getProfileService()
+  return getProfile()
 }
 
 /**
@@ -122,7 +110,7 @@ export async function getProfileAction(): Promise<ServiceResult<UserProfile>> {
 export async function updateProfileAction(
   data: UpdateProfileData
 ): Promise<ServiceResult<UserProfile>> {
-  const result = await updateProfileService(data)
+  const result = await updateProfile(data)
 
   if (result.success) {
     revalidatePath("/profile")
@@ -149,7 +137,7 @@ export async function updateProfileFormAction(
 export async function changePasswordAction(
   data: ChangePasswordData
 ): Promise<ServiceResult> {
-  return changePasswordService(data)
+  return changePassword(data)
 }
 
 /**
@@ -166,7 +154,7 @@ export async function changePasswordFormAction(
     return { success: false, error: "All fields are required" }
   }
 
-  return changePasswordService({
+  return changePassword({
     currentPassword,
     newPassword,
     confirmNewPassword,
@@ -179,7 +167,7 @@ export async function changePasswordFormAction(
 export async function deleteAccountAction(
   password?: string
 ): Promise<ServiceResult> {
-  const result = await deleteAccountService(password)
+  const result = await deleteAccount(password)
 
   if (result.success) {
     await signOut({ redirectTo: "/" })
@@ -204,7 +192,7 @@ export async function deleteAccountFormAction(
 export async function refreshEmailAction(
   newEmail: string
 ): Promise<ServiceResult> {
-  const result = await refreshEmailService(newEmail)
+  const result = await refreshEmail(newEmail)
 
   if (result.success) {
     revalidatePath("/profile")
