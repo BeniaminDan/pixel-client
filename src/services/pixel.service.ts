@@ -166,16 +166,3 @@ export class PixelService extends BaseService {
     return response.data
   }
 }
-
-// Singleton instance
-let pixelServiceInstance: PixelService | null = null
-
-/**
- * Get singleton pixel service instance
- */
-export function getPixelService(): PixelService {
-  if (!pixelServiceInstance) {
-    pixelServiceInstance = new PixelService()
-  }
-  return pixelServiceInstance
-}

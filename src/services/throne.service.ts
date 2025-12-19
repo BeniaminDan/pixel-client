@@ -148,16 +148,3 @@ export class ThroneService extends BaseService {
     return response.data
   }
 }
-
-// Singleton instance
-let throneServiceInstance: ThroneService | null = null
-
-/**
- * Get singleton throne service instance
- */
-export function getThroneService(): ThroneService {
-  if (!throneServiceInstance) {
-    throneServiceInstance = new ThroneService()
-  }
-  return throneServiceInstance
-}

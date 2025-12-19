@@ -342,16 +342,3 @@ export class AdminService extends BaseService {
     return response.data
   }
 }
-
-// Singleton instance
-let adminServiceInstance: AdminService | null = null
-
-/**
- * Get singleton admin service instance
- */
-export function getAdminService(): AdminService {
-  if (!adminServiceInstance) {
-    adminServiceInstance = new AdminService()
-  }
-  return adminServiceInstance
-}

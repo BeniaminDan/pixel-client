@@ -12,12 +12,18 @@ import { attachAuthInterceptor, createServerTokenGetter } from "@/lib/api/interc
 import { handleApiErrorSilently } from "@/lib/api/errors"
 
 /**
- * Create server-side authenticated client with token getter
+ * Create server-side authenticated client with token getter and refresh
  */
 function createServerAuthenticatedClient() {
   const client = createAuthenticatedClient()
   attachAuthInterceptor(client, {
     getToken: createServerTokenGetter(),
+    refreshToken: async () => {
+      // Import dynamically to avoid circular dependencies
+      const { refreshServerAccessToken } = await import('@/lib/auth')
+      return refreshServerAccessToken()
+    },
+    autoRefresh: true,
   })
   return client
 }
@@ -100,10 +106,10 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: apiError.userMessage,
-      errors: apiError.details 
+      errors: apiError.details
     }
   }
 }
@@ -138,10 +144,10 @@ export async function updateProfile(
     return { success: true, data: updatedProfile as UserProfile }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: apiError.userMessage,
-      errors: apiError.details 
+      errors: apiError.details
     }
   }
 }
@@ -162,10 +168,10 @@ export async function changePassword(
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: apiError.userMessage,
-      errors: apiError.details 
+      errors: apiError.details
     }
   }
 }
@@ -194,10 +200,10 @@ export async function refreshEmail(newEmail: string): Promise<ServiceResult> {
     return { success: true }
   } catch (error) {
     const apiError = handleApiErrorSilently(error)
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: apiError.userMessage,
-      errors: apiError.details 
+      errors: apiError.details
     }
   }
 }

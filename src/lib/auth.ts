@@ -109,7 +109,7 @@ function normalizePermissions(permission: string | string[] | undefined): string
  * @param token - Current JWT token
  * @returns Updated JWT token with new access token or error state
  */
-async function refreshAccessToken(token: JWT): Promise<JWT> {
+export async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
     const refreshToken = token.refreshToken as string | undefined
     if (!refreshToken) {
@@ -411,4 +411,56 @@ export async function getAccessToken(): Promise<string | null> {
 
   // Token access is handled via the API proxy route
   return null
+}
+
+/**
+ * Server-side token refresh for use in axios interceptors
+ * 
+ * This function refreshes the access token by retrieving the current session,
+ * extracting the refresh token, and calling the refreshAccessToken function.
+ * 
+ * @returns New access token or null if refresh fails
+ */
+export async function refreshServerAccessToken(): Promise<string | null> {
+  try {
+    const { cookies } = await import('next/headers')
+    const { decode } = await import('next-auth/jwt')
+
+    const cookieStore = await cookies()
+    const sessionToken =
+      cookieStore.get('authjs.session-token')?.value ||
+      cookieStore.get('__Secure-authjs.session-token')?.value
+
+    if (!sessionToken) {
+      console.error('No session token found for refresh')
+      return null
+    }
+
+    const decoded = await decode({
+      token: sessionToken,
+      secret: process.env.AUTH_SECRET!,
+      salt:
+        process.env.NODE_ENV === 'production'
+          ? '__Secure-authjs.session-token'
+          : 'authjs.session-token',
+    })
+
+    if (!decoded) {
+      console.error('Failed to decode session token')
+      return null
+    }
+
+    // Refresh the token
+    const refreshedToken = await refreshAccessToken(decoded as JWT)
+
+    if (refreshedToken.error) {
+      console.error('Token refresh failed:', refreshedToken.error)
+      return null
+    }
+
+    return (refreshedToken.accessToken as string) || null
+  } catch (error) {
+    console.error('Server-side token refresh error:', error)
+    return null
+  }
 }

@@ -99,16 +99,3 @@ export class AccountService extends BaseService {
     await this.client.delete('/account/avatar')
   }
 }
-
-// Singleton instance
-let accountServiceInstance: AccountService | null = null
-
-/**
- * Get singleton account service instance
- */
-export function getAccountService(): AccountService {
-  if (!accountServiceInstance) {
-    accountServiceInstance = new AccountService()
-  }
-  return accountServiceInstance
-}

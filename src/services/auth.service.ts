@@ -122,16 +122,3 @@ export class AuthService extends BaseService {
     return response.data
   }
 }
-
-// Singleton instance
-let authServiceInstance: AuthService | null = null
-
-/**
- * Get singleton auth service instance
- */
-export function getAuthService(): AuthService {
-  if (!authServiceInstance) {
-    authServiceInstance = new AuthService()
-  }
-  return authServiceInstance
-}
