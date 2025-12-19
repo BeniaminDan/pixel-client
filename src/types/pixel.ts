@@ -129,3 +129,4 @@ export interface LiveStats {
   totalPixelsOwned: number
   totalDollarsSpent: number
 }
+

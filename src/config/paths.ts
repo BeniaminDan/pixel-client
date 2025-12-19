@@ -33,3 +33,4 @@ export const paths = {
   serverError: '/500',
   notFound: '/404',
 } as const
+

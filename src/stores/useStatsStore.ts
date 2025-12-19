@@ -72,3 +72,4 @@ export const useStatsStore = create<StatsState>((set, get) => ({
     return () => clearInterval(interval)
   },
 }))
+

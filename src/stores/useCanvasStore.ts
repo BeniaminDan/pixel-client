@@ -157,3 +157,4 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     return () => clearInterval(interval)
   },
 }))
+

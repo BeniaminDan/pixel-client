@@ -1,100 +1,39 @@
 /**
  * @fileoverview Account management service for interacting with the backend API.
  * All functions in this service are designed to be called from server actions.
+ * Migrated to use axios architecture.
  */
 
-import { cookies } from "next/headers"
-import { decode } from "next-auth/jwt"
 import type { UserProfile, UpdateProfileData, ChangePasswordData, ResetPasswordData, ServiceResult } from "@/features/auth/types"
-
-const API_BASE = process.env.API_BASE_URL + "auth/"
-
-
-/**
- * Get the access token from the NextAuth JWT cookie
- */
-async function getAccessToken(): Promise<string | null> {
-  try {
-    const cookieStore = await cookies()
-    const sessionToken =
-      cookieStore.get("authjs.session-token")?.value ||
-      cookieStore.get("__Secure-authjs.session-token")?.value
-
-    if (!sessionToken) {
-      return null
-    }
-
-    const decoded = await decode({
-      token: sessionToken,
-      secret: process.env.AUTH_SECRET!,
-      salt:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
-    })
-
-    return decoded?.accessToken as string | null
-  } catch (error) {
-    console.error("Error getting access token:", error)
-    return null
-  }
-}
+import { AuthService } from "@/services/auth.service"
+import { AccountService } from "@/services/account.service"
+import { createAuthenticatedClient, createPublicClient } from "@/lib/api/factory"
+import { attachAuthInterceptor, createServerTokenGetter } from "@/lib/api/interceptors"
+import { handleApiErrorSilently } from "@/lib/api/errors"
 
 /**
- * Make an authenticated request to the API
+ * Create server-side authenticated client with token getter
  */
-async function authenticatedFetch(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<Response> {
-  const accessToken = await getAccessToken()
-
-  if (!accessToken) {
-    throw new Error("Not authenticated")
-  }
-
-  return fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      ...options.headers,
-    },
+function createServerAuthenticatedClient() {
+  const client = createAuthenticatedClient()
+  attachAuthInterceptor(client, {
+    getToken: createServerTokenGetter(),
   })
+  return client
 }
 
 /**
- * Make an unauthenticated request to the API
+ * Create server-side auth service
  */
-async function publicFetch(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<Response> {
-  return fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
+function createServerAuthService() {
+  return new AuthService(createPublicClient())
 }
 
 /**
- * Parse error response from API
+ * Create server-side account service
  */
-async function parseErrorResponse(response: Response): Promise<{
-  error: string
-  errors?: Record<string, string[]>
-}> {
-  try {
-    const data = await response.json()
-    return {
-      error: data.message || data.error || "An error occurred",
-      errors: data.errors,
-    }
-  } catch {
-    return { error: "An error occurred" }
-  }
+function createServerAccountService() {
+  return new AccountService(createServerAuthenticatedClient())
 }
 
 // ============================================================================
@@ -109,19 +48,12 @@ export async function confirmEmail(
   token: string
 ): Promise<ServiceResult> {
   try {
-    const response = await publicFetch(
-      `/account/confirm-email?userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`
-    )
-
-    if (!response.ok) {
-      const { error } = await parseErrorResponse(response)
-      return { success: false, error }
-    }
-
+    const authService = createServerAuthService()
+    await authService.confirmEmail({ userId, token })
     return { success: true }
   } catch (error) {
-    console.error("Email confirmation error:", error)
-    return { success: false, error: "Failed to confirm email" }
+    const apiError = handleApiErrorSilently(error)
+    return { success: false, error: apiError.userMessage }
   }
 }
 
@@ -130,20 +62,12 @@ export async function confirmEmail(
  */
 export async function resendConfirmation(email: string): Promise<ServiceResult> {
   try {
-    const response = await publicFetch("account/resend-confirmation", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    })
-
-    if (!response.ok) {
-      const { error } = await parseErrorResponse(response)
-      return { success: false, error }
-    }
-
+    const authService = createServerAuthService()
+    await authService.resendConfirmation(email)
     return { success: true }
   } catch (error) {
-    console.error("Resend confirmation error:", error)
-    return { success: false, error: "Failed to resend confirmation email" }
+    const apiError = handleApiErrorSilently(error)
+    return { success: false, error: apiError.userMessage }
   }
 }
 
@@ -152,16 +76,11 @@ export async function resendConfirmation(email: string): Promise<ServiceResult> 
  */
 export async function forgotPassword(email: string): Promise<ServiceResult> {
   try {
-    await publicFetch("account/forgot-password", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    })
-
+    const authService = createServerAuthService()
+    await authService.forgotPassword({ email })
     // Always return success to prevent email enumeration
-    // The API should also follow this pattern
     return { success: true }
   } catch (error) {
-    console.error("Forgot password error:", error)
     // Still return success to prevent email enumeration
     return { success: true }
   }
@@ -176,24 +95,16 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
       return { success: false, error: "Passwords do not match" }
     }
 
-    const response = await publicFetch("account/reset-password", {
-      method: "POST",
-      body: JSON.stringify({
-        email: data.email,
-        token: data.token,
-        newPassword: data.newPassword,
-      }),
-    })
-
-    if (!response.ok) {
-      const { error, errors } = await parseErrorResponse(response)
-      return { success: false, error, errors }
-    }
-
+    const authService = createServerAuthService()
+    await authService.resetPassword(data)
     return { success: true }
   } catch (error) {
-    console.error("Reset password error:", error)
-    return { success: false, error: "Failed to reset password" }
+    const apiError = handleApiErrorSilently(error)
+    return { 
+      success: false, 
+      error: apiError.userMessage,
+      errors: apiError.details 
+    }
   }
 }
 
@@ -206,18 +117,12 @@ export async function resetPassword(data: ResetPasswordData): Promise<ServiceRes
  */
 export async function getProfile(): Promise<ServiceResult<UserProfile>> {
   try {
-    const response = await authenticatedFetch("account/me")
-
-    if (!response.ok) {
-      const { error } = await parseErrorResponse(response)
-      return { success: false, error }
-    }
-
-    const data = await response.json()
-    return { success: true, data }
+    const accountService = createServerAccountService()
+    const data = await accountService.getProfile()
+    return { success: true, data: data as UserProfile }
   } catch (error) {
-    console.error("Get profile error:", error)
-    return { success: false, error: "Failed to get profile" }
+    const apiError = handleApiErrorSilently(error)
+    return { success: false, error: apiError.userMessage }
   }
 }
 
@@ -228,21 +133,16 @@ export async function updateProfile(
   data: UpdateProfileData
 ): Promise<ServiceResult<UserProfile>> {
   try {
-    const response = await authenticatedFetch("account/me", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const { error, errors } = await parseErrorResponse(response)
-      return { success: false, error, errors }
-    }
-
-    const updatedProfile = await response.json()
-    return { success: true, data: updatedProfile }
+    const accountService = createServerAccountService()
+    const updatedProfile = await accountService.updateProfile(data)
+    return { success: true, data: updatedProfile as UserProfile }
   } catch (error) {
-    console.error("Update profile error:", error)
-    return { success: false, error: "Failed to update profile" }
+    const apiError = handleApiErrorSilently(error)
+    return { 
+      success: false, 
+      error: apiError.userMessage,
+      errors: apiError.details 
+    }
   }
 }
 
@@ -257,23 +157,16 @@ export async function changePassword(
       return { success: false, error: "New passwords do not match" }
     }
 
-    const response = await authenticatedFetch("account/change-password", {
-      method: "POST",
-      body: JSON.stringify({
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      }),
-    })
-
-    if (!response.ok) {
-      const { error, errors } = await parseErrorResponse(response)
-      return { success: false, error, errors }
-    }
-
+    const accountService = createServerAccountService()
+    await accountService.changePassword(data)
     return { success: true }
   } catch (error) {
-    console.error("Change password error:", error)
-    return { success: false, error: "Failed to change password" }
+    const apiError = handleApiErrorSilently(error)
+    return { 
+      success: false, 
+      error: apiError.userMessage,
+      errors: apiError.details 
+    }
   }
 }
 
@@ -282,20 +175,12 @@ export async function changePassword(
  */
 export async function deleteAccount(password?: string): Promise<ServiceResult> {
   try {
-    const response = await authenticatedFetch("account/me", {
-      method: "DELETE",
-      body: password ? JSON.stringify({ password }) : undefined,
-    })
-
-    if (!response.ok) {
-      const { error } = await parseErrorResponse(response)
-      return { success: false, error }
-    }
-
+    const accountService = createServerAccountService()
+    await accountService.deleteAccount(password)
     return { success: true }
   } catch (error) {
-    console.error("Delete account error:", error)
-    return { success: false, error: "Failed to delete account" }
+    const apiError = handleApiErrorSilently(error)
+    return { success: false, error: apiError.userMessage }
   }
 }
 
@@ -304,19 +189,15 @@ export async function deleteAccount(password?: string): Promise<ServiceResult> {
  */
 export async function refreshEmail(newEmail: string): Promise<ServiceResult> {
   try {
-    const response = await authenticatedFetch("account/refresh-email", {
-      method: "POST",
-      body: JSON.stringify({ newEmail }),
-    })
-
-    if (!response.ok) {
-      const { error, errors } = await parseErrorResponse(response)
-      return { success: false, error, errors }
-    }
-
+    const accountService = createServerAccountService()
+    await accountService.updateEmail({ newEmail })
     return { success: true }
   } catch (error) {
-    console.error("Refresh email error:", error)
-    return { success: false, error: "Failed to update email" }
+    const apiError = handleApiErrorSilently(error)
+    return { 
+      success: false, 
+      error: apiError.userMessage,
+      errors: apiError.details 
+    }
   }
 }
