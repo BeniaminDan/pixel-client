@@ -1,46 +1,20 @@
 /**
- * @fileoverview API client configuration for making HTTP requests.
- *
- * ## Authentication Strategy
- *
- * This application uses HTTP-only cookies for secure token storage.
- * Access tokens are never exposed to client-side JavaScript.
- *
- * ### For authenticated requests:
- * Use the Next.js API proxy route at `/api/backend/...` which automatically
- * attaches the Bearer token from the server-side session.
- *
- * @example
- * ```tsx
- * // Client-side authenticated request (goes through proxy)
- * const response = await fetch('/api/backend/account/me')
- * ```
- *
- * ### For public/unauthenticated requests:
- * Use the apiClient directly for public endpoints.
- *
- * @example
- * ```tsx
- * import { apiClient } from '@/lib/apiClient'
- * const response = await apiClient.get('/public/health')
- * ```
- *
- * ### For server-side requests:
- * Use the services in `@/services` which handle authentication automatically.
- *
- * @example
- * ```tsx
- * import { getProfile } from '@/services/account'
- * const result = await getProfile()
- * ```
+ * @fileoverview DEPRECATED - Use @/lib/api/factory instead
+ * 
+ * This file contains legacy axios client configuration.
+ * New code should use the services from @/lib/api/factory and @/services
+ * 
+ * @deprecated Use @/lib/api/factory (createPublicClient, createAuthenticatedClient)
+ * @see @/lib/api/factory
+ * @see @/services
+ * 
+ * This file is kept for reference only and should not be used in new code.
  */
 
 import axios from 'axios'
 
 /**
- * API client for public (unauthenticated) requests.
- *
- * For authenticated requests, use the proxy at `/api/backend/...` instead.
+ * @deprecated Use createPublicClient() from @/lib/api/factory instead
  */
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
@@ -51,8 +25,8 @@ export const apiClient = axios.create({
 })
 
 /**
- * Proxy client for authenticated requests through Next.js API routes.
- * This client automatically uses the session's access token via the proxy.
+ * @deprecated Use services from @/services which handle authentication automatically
+ * or use createAuthenticatedClient() from @/lib/api/factory for server-side
  */
 export const authenticatedClient = axios.create({
   baseURL: '/api/backend',
@@ -62,18 +36,4 @@ export const authenticatedClient = axios.create({
   },
 })
 
-// Add response interceptor for error handling
-authenticatedClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Handle 401 errors (unauthorized/session expired)
-    if (error.response?.status === 401) {
-      // Optionally redirect to login or trigger re-authentication
-      if (typeof window !== 'undefined') {
-        const currentPath = window.location.pathname
-        window.location.href = `/login?callbackUrl=${encodeURIComponent(currentPath)}&error=SessionExpired`
-      }
-    }
-    return Promise.reject(error)
-  }
-)
+// Response interceptor removed - use error interceptors from @/lib/api/interceptors

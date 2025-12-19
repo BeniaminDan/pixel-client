@@ -1,11 +1,23 @@
 /**
- * @fileoverview Helper utilities built on top of the shared Axios client.
+ * @fileoverview DEPRECATED - Use @/services instead
+ * 
+ * This file contains legacy HTTP helper utilities.
+ * New code should use the service classes from @/services
+ * 
+ * @deprecated Use service classes from @/services (AuthService, AccountService, etc.)
+ * @see @/services
+ * @see @/lib/api/errors for error handling
+ * 
+ * This file is kept for reference only and should not be used in new code.
  */
 
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { apiClient } from './apiClient';
 import type { ApiError, ApiErrorPayload, ApiResponse, ApiResult, QueryParams } from '@/types';
 
+/**
+ * @deprecated Use service methods which handle unwrapping automatically
+ */
 const unwrapResponse = <T,>(response: AxiosResponse<ApiResponse<T> | T>): T => {
     const body = response.data as ApiResponse<T> | T;
 
@@ -16,6 +28,9 @@ const unwrapResponse = <T,>(response: AxiosResponse<ApiResponse<T> | T>): T => {
     return body as T;
 };
 
+/**
+ * @deprecated Build query strings in service methods or use URLSearchParams directly
+ */
 export const buildQueryString = (params: QueryParams = {}) => {
     const searchParams = new URLSearchParams();
 
@@ -29,6 +44,9 @@ export const buildQueryString = (params: QueryParams = {}) => {
     return query ? `?${query}` : '';
 };
 
+/**
+ * @deprecated Use handleApiError from @/lib/api/errors instead
+ */
 export const extractApiError = (error: unknown): ApiError => {
     if ((error as AxiosError)?.isAxiosError || error instanceof Error) {
         const axiosError = error as AxiosError<ApiErrorPayload>;
@@ -45,11 +63,17 @@ export const extractApiError = (error: unknown): ApiError => {
     return { message: 'Unknown error occurred' };
 };
 
+/**
+ * @deprecated Use service methods from @/services instead
+ */
 export const httpRequest = async <T,>(config: AxiosRequestConfig): Promise<T> => {
     const response = await apiClient.request<ApiResponse<T> | T>(config);
     return unwrapResponse<T>(response);
 };
 
+/**
+ * @deprecated Use service methods with try/catch and handleApiError
+ */
 export const safeHttpRequest = async <T,>(config: AxiosRequestConfig): Promise<ApiResult<T>> => {
     try {
         const data = await httpRequest<T>(config);
@@ -59,17 +83,32 @@ export const safeHttpRequest = async <T,>(config: AxiosRequestConfig): Promise<A
     }
 };
 
+/**
+ * @deprecated Use service.get() methods
+ */
 export const httpGet = async <T,>(url: string, config?: AxiosRequestConfig) =>
     httpRequest<T>({ ...config, method: 'GET', url });
 
+/**
+ * @deprecated Use service.post() methods
+ */
 export const httpPost = async <T,>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     httpRequest<T>({ ...config, method: 'POST', url, data });
 
+/**
+ * @deprecated Use service.put() methods
+ */
 export const httpPut = async <T,>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     httpRequest<T>({ ...config, method: 'PUT', url, data });
 
+/**
+ * @deprecated Use service.patch() methods
+ */
 export const httpPatch = async <T,>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     httpRequest<T>({ ...config, method: 'PATCH', url, data });
 
+/**
+ * @deprecated Use service.delete() methods
+ */
 export const httpDelete = async <T,>(url: string, config?: AxiosRequestConfig) =>
     httpRequest<T>({ ...config, method: 'DELETE', url });

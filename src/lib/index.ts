@@ -2,18 +2,20 @@
  * @fileoverview Barrel file for utilities and services.
  *
  * This file serves as a single export point for general-purpose utility functions
- * (like date formatting, math helpers) and configured services (like the API client).
+ * and configured services.
  *
  * @usage
- * // Import multiple utilities/services using one clean path alias:
- * import { apiClient, formatDate } from '@/lib';
+ * // Import utilities using path alias:
+ * import { formatDate } from '@/lib';
  */
 
-export * from './apiClient'
-export * from './http'
+// Legacy files removed - use @/lib/api and @/services instead
+// export * from './apiClient' // DEPRECATED: Use @/lib/api/factory
+// export * from './http' // DEPRECATED: Use @/services
+
 export * from './fluid-shaders'
 export * from './fluid-webgl'
 export * from './auth-popup'
 export * from './auth'
 export * from './color-utils'
-// export * from './dateUtils'; // Uncomment/add when created
+
