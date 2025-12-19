@@ -13,10 +13,10 @@ Sentry.init({
   // Integrations for server-side
   integrations: [
     Sentry.httpIntegration(),
-    Sentry.breadcrumbsIntegration({
-      // Capture console logs
-      console: process.env.NODE_ENV === 'development',
-    }),
+    // Sentry.breadcrumbsIntegration({
+    //   // Capture console logs
+    //   console: process.env.NODE_ENV === 'development',
+    // }),
   ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.

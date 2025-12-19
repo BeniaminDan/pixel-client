@@ -2,17 +2,11 @@
  * @fileoverview Factory for creating specialized Axios clients
  */
 
-import axios, { type AxiosInstance } from 'axios'
-import type { ApiConfig } from '../config'
-import {
-  DEFAULT_API_CONFIG,
-  PUBLIC_API_CONFIG,
-  AUTHENTICATED_API_CONFIG,
-  ADMIN_API_CONFIG,
-} from '../config'
-import { attachRetryInterceptor } from '../retry'
-import { attachLoggingInterceptor } from '../logging'
-import { consoleLogger, sentryLogger } from '../logging'
+import axios, {type AxiosInstance} from 'axios'
+import type {ApiConfig} from '../config'
+import {ADMIN_API_CONFIG, AUTHENTICATED_API_CONFIG, DEFAULT_API_CONFIG, PUBLIC_API_CONFIG,} from '../config'
+import {attachRetryInterceptor} from '../retry'
+import {attachLoggingInterceptor, consoleLogger, sentryLogger} from '@/lib/api'
 
 /**
  * Client type for factory
@@ -33,14 +27,12 @@ function createBaseClient(config: Partial<ApiConfig> = {}): AxiosInstance {
     ...config,
   }
 
-  const instance = axios.create({
+  return axios.create({
     baseURL: finalConfig.baseURL,
     timeout: finalConfig.timeout,
     withCredentials: finalConfig.withCredentials,
     headers: finalConfig.defaultHeaders,
   })
-
-  return instance
 }
 
 /**

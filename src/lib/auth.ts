@@ -2,7 +2,24 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { NextAuthConfig, User } from "next-auth"
 import type { JWT } from "next-auth/jwt"
-// cookies import removed
+import { authTokenClient, authJsonClient, createTokenParams, extractOAuth2Error, type OAuth2TokenResponse } from "./authClient"
+
+/**
+ * Constants
+ */
+const TOKEN_EXPIRY_BUFFER_MS = 60000 // 60 seconds buffer before token expiry
+const DEFAULT_TOKEN_EXPIRY_MS = 3600 * 1000 // 1 hour
+
+/**
+ * Environment variables
+ */
+const OPENIDDICT_ISSUER = process.env.OPENIDDICT_ISSUER
+const OPENIDDICT_CLIENT_ID = process.env.OPENIDDICT_CLIENT_ID
+const OPENIDDICT_CLIENT_SECRET = process.env.OPENIDDICT_CLIENT_SECRET
+
+/**
+ * Type Definitions
+ */
 
 /** Extended user type with credential tokens */
 interface CredentialUser extends User {
@@ -11,6 +28,7 @@ interface CredentialUser extends User {
   expiresIn: number
 }
 
+/** JWT payload structure from OpenIddict access token */
 interface JwtPayload {
   sub: string
   email: string
@@ -19,87 +37,108 @@ interface JwtPayload {
   permission: string | string[]
 }
 
+/** Authentication result from password grant */
+interface AuthenticationResult {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  user: {
+    id: string
+    email: string
+    name?: string
+  }
+}
+
+/** User info response from OpenIddict */
+interface UserInfo {
+  sub: string
+  email: string
+  name?: string
+  [key: string]: unknown
+}
+
+/**
+ * Helper Functions
+ */
+
 /**
  * Decode JWT token payload without verification
- * Note: This is safe because we only decode tokens we received directly from our trusted auth server
+ * 
+ * Note: This is safe because we only decode tokens we received directly from our trusted auth server.
+ * For production use, consider using a library like jose for proper JWT verification.
+ * 
+ * @param token - JWT token string
+ * @returns Decoded payload or null if decoding fails
  */
 function decodeJwtPayload(token: string): JwtPayload | null {
   try {
-    const base64Url = token.split('.')[1]
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format')
+    }
+
+    const base64Url = parts[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    const jsonPayload = decodeURIComponent(
-      Buffer.from(base64, 'base64')
-        .toString()
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
-    return JSON.parse(jsonPayload)
+    const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8')
+
+    return JSON.parse(jsonPayload) as JwtPayload
   } catch (error) {
     console.error('Failed to decode JWT payload:', error)
     return null
   }
 }
 
-const OPENIDDICT_ISSUER = process.env.OPENIDDICT_ISSUER
-const OPENIDDICT_CLIENT_ID = process.env.OPENIDDICT_CLIENT_ID
-const OPENIDDICT_CLIENT_SECRET = process.env.OPENIDDICT_CLIENT_SECRET
+/**
+ * Normalize permissions from JWT payload to array format
+ * 
+ * @param permission - Permission value from JWT (can be string, array, or undefined)
+ * @returns Array of permission strings
+ */
+function normalizePermissions(permission: string | string[] | undefined): string[] {
+  if (!permission) return []
+  return Array.isArray(permission) ? permission : [permission]
+}
 
-// Cookie helper functions removed
-
+/**
+ * Authentication Functions
+ */
 
 /**
  * Refresh an access token using the refresh token grant
+ * 
+ * @param token - Current JWT token
+ * @returns Updated JWT token with new access token or error state
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    // Get refresh token from JWT
     const refreshToken = token.refreshToken as string | undefined
     if (!refreshToken) {
       throw new Error("No refresh token available")
     }
 
-    const tokenEndpoint = `${OPENIDDICT_ISSUER}api/auth/connect/token`
-
-    const response = await fetch(tokenEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: OPENIDDICT_CLIENT_ID!,
-        client_secret: OPENIDDICT_CLIENT_SECRET!,
-        refresh_token: refreshToken,
-      }),
+    const params = createTokenParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
     })
 
-    // Check if response has content before parsing
-    const responseText = await response.text()
-    if (!responseText) {
-      throw new Error("Empty response from token endpoint")
-    }
-
-    let refreshedTokens
-    try {
-      refreshedTokens = JSON.parse(responseText)
-    } catch (parseError) {
-      throw new Error(`Invalid JSON response: ${responseText}`)
-    }
-
-    if (!response.ok) {
-      throw new Error(refreshedTokens.error || "Failed to refresh token")
-    }
-
+    const response = await authTokenClient.post<OAuth2TokenResponse>("/token", params)
+    const refreshedTokens = response.data
+    console.log("Refreshed access token:", refreshedTokens)
     return {
       ...token,
       accessToken: refreshedTokens.access_token,
       accessTokenExpiresAt: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fallback to old refresh token if not allowed to rotate
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
       error: undefined,
     }
   } catch (error) {
-    console.error("Error refreshing access token:", error)
+    const oauth2Error = extractOAuth2Error(error)
+    console.error("Error refreshing access token:", {
+      error: oauth2Error.error,
+      description: oauth2Error.errorDescription,
+      status: oauth2Error.status,
+    })
+
     return {
       ...token,
       error: "RefreshTokenError",
@@ -109,110 +148,34 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 
 /**
  * Authenticate using Resource Owner Password Credentials (ROPC) grant
+ * 
+ * @param email - User's email address
+ * @param password - User's password
+ * @returns Authentication result with tokens and user info, or null if authentication fails
  */
 async function authenticateWithPassword(
   email: string,
   password: string
-): Promise<{
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
-  user: { id: string; email: string; name?: string }
-} | null> {
+): Promise<AuthenticationResult | null> {
   try {
-    const tokenEndpoint = `${OPENIDDICT_ISSUER}api/auth/connect/token`
-
-    const response = await fetch(tokenEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "password",
-        client_id: OPENIDDICT_CLIENT_ID!,
-        client_secret: OPENIDDICT_CLIENT_SECRET!,
-        username: email,
-        password: password,
-      }),
+    // Step 1: Request access token using Resource Owner Password Credentials (ROPC) grant
+    const params = createTokenParams({
+      grant_type: "password",
+      username: email,
+      password,
     })
 
-    // Check if response has content before parsing
-    const responseText = await response.text()
-    if (!responseText) {
-      console.error("ROPC authentication failed: Empty response", {
-        status: response.status,
-        statusText: response.statusText,
-        url: tokenEndpoint,
-      })
-      return null
-    }
+    const tokenResponse = await authTokenClient.post<OAuth2TokenResponse>("/token", params)
+    const tokens = tokenResponse.data
 
-    let tokens
-    try {
-      tokens = JSON.parse(responseText)
-    } catch (parseError) {
-      console.error("ROPC authentication failed: Invalid JSON response", {
-        status: response.status,
-        statusText: response.statusText,
-        responseText,
-        url: tokenEndpoint,
-        parseError,
-      })
-      return null
-    }
-
-    if (!response.ok) {
-      console.error("ROPC authentication failed:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: tokens.error,
-        errorDescription: tokens.error_description,
-        errorUri: tokens.error_uri,
-        fullResponse: tokens,
-        url: tokenEndpoint,
-      })
-      return null
-    }
-
-    // Fetch user info from the userinfo endpoint
-    const userInfoResponse = await fetch(`${OPENIDDICT_ISSUER}api/auth/connect/userinfo`, {
+    // Step 2: Fetch user info from the userinfo endpoint
+    const userInfoResponse = await authJsonClient.get<UserInfo>("/userinfo", {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
       },
     })
 
-    if (!userInfoResponse.ok) {
-      const userInfoErrorText = await userInfoResponse.text()
-      console.error("Failed to fetch user info:", {
-        status: userInfoResponse.status,
-        statusText: userInfoResponse.statusText,
-        responseText: userInfoErrorText,
-        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
-      })
-      return null
-    }
-
-    const userInfoText = await userInfoResponse.text()
-    if (!userInfoText) {
-      console.error("User info response is empty", {
-        status: userInfoResponse.status,
-        statusText: userInfoResponse.statusText,
-        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
-      })
-      return null
-    }
-
-    let userInfo
-    try {
-      userInfo = JSON.parse(userInfoText)
-    } catch (parseError) {
-      console.error("Failed to parse user info JSON:", {
-        responseText: userInfoText,
-        parseError,
-        url: `${OPENIDDICT_ISSUER}api/auth/connect/userinfo`,
-      })
-      return null
-    }
+    const userInfo = userInfoResponse.data
 
     return {
       accessToken: tokens.access_token,
@@ -225,28 +188,55 @@ async function authenticateWithPassword(
       },
     }
   } catch (error) {
-    console.error("ROPC authentication error:", {
-      error,
-      errorMessage: error instanceof Error ? error.message : String(error),
-      errorStack: error instanceof Error ? error.stack : undefined,
+    const oauth2Error = extractOAuth2Error(error)
+    console.error("ROPC authentication failed:", {
+      error: oauth2Error.error,
+      description: oauth2Error.errorDescription,
+      status: oauth2Error.status,
       email,
-      tokenEndpoint: `${OPENIDDICT_ISSUER}api/auth/connect/token`,
     })
     return null
   }
 }
 
+/**
+ * Extract and populate JWT token with user data from access token payload
+ * 
+ * @param token - JWT token to populate
+ * @param accessToken - Access token to decode
+ * @returns Updated token with user data and permissions
+ */
+function populateTokenFromAccessToken(token: JWT, accessToken: string): JWT {
+  const payload = decodeJwtPayload(accessToken)
+  if (!payload) return token
+
+  return {
+    ...token,
+    sub: payload.sub,
+    email: payload.email,
+    name: payload.name,
+    role: payload.role,
+    permissions: normalizePermissions(payload.permission),
+  }
+}
+
+/**
+ * NextAuth Configuration
+ */
 const config: NextAuthConfig = {
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   providers: [
-    // OpenIddict OAuth2 providers for OAuth popup flow
-    // Using OAuth2 type with explicit endpoints instead of OIDC discovery
-    // because Auth.js v5 strips the path from issuer URLs during discovery
+    /**
+     * OpenIddict OAuth2 provider for OAuth popup flow
+     * 
+     * Note: Using explicit endpoints instead of OIDC discovery because
+     * Auth.js v5 strips the path from issuer URLs during discovery
+     */
     {
       id: "openiddict",
       name: "OpenIddict",
       type: "oauth",
-      issuer: OPENIDDICT_ISSUER, // Must match the 'iss' parameter returned by OpenIddict
+      issuer: OPENIDDICT_ISSUER,
       clientId: OPENIDDICT_CLIENT_ID,
       clientSecret: OPENIDDICT_CLIENT_SECRET,
       authorization: {
@@ -267,7 +257,9 @@ const config: NextAuthConfig = {
         }
       },
     },
-    // Credentials providers for email/password login via ROPC
+    /**
+     * Credentials provider for email/password login via Resource Owner Password Credentials (ROPC)
+     */
     Credentials({
       id: "credentials",
       name: "Email & Password",
@@ -281,7 +273,9 @@ const config: NextAuthConfig = {
           return null
         }
 
-        console.log("Credentials authorize: Attempting authentication for", credentials.email)
+        if (process.env.NODE_ENV === "development") {
+          console.log("Credentials authorize: Attempting authentication for", credentials.email)
+        }
 
         const result = await authenticateWithPassword(
           credentials.email as string,
@@ -289,24 +283,20 @@ const config: NextAuthConfig = {
         )
 
         if (!result) {
-          console.error("Credentials authorize: Authentication failed - authenticateWithPassword returned null")
+          console.error("Credentials authorize: Authentication failed")
           return null
         }
 
-        console.log("Credentials authorize: Authentication successful for", credentials.email)
+        if (process.env.NODE_ENV === "development") {
+          console.log("Credentials authorize: Authentication successful for", credentials.email)
+        }
 
-        // Store refresh token in HTTP-only cookie to reduce session cookie size
-        // await setRefreshTokenCookie(result.refreshToken) // Cookie approach removed
-
-
-        // Return user object with tokens attached for JWT callback
-        // Note: refreshToken is stored in cookie, not in the returned user object
         return {
           id: result.user.id,
           email: result.user.email,
           name: result.user.name,
           accessToken: result.accessToken,
-          refreshToken: result.refreshToken, // Still passed for JWT callback, but won't be stored in JWT
+          refreshToken: result.refreshToken,
           expiresIn: result.expiresIn,
         } as CredentialUser
       },
@@ -321,44 +311,31 @@ const config: NextAuthConfig = {
   session: { strategy: "jwt" },
 
   callbacks: {
+    /**
+     * JWT callback - called whenever a JWT is created or updated
+     */
     async jwt({ token, user, account }) {
-      // Initial sign in via OAuth
+      // Handle initial sign in via OAuth
       if (account && account.provider === "openiddict") {
-        // Store refresh token in JWT
-        if (account.refresh_token) {
-          token.refreshToken = account.refresh_token
-        }
-        // Store accessToken in JWT
+        token.refreshToken = account.refresh_token
         token.accessToken = account.access_token
         token.accessTokenExpiresAt = account.expires_at
           ? account.expires_at * 1000
-          : Date.now() + 3600 * 1000
+          : Date.now() + DEFAULT_TOKEN_EXPIRY_MS
 
-        // Decode access token to extract role and permissions
+        // Decode access token to extract user data, role and permissions
         if (account.access_token) {
-          const payload = decodeJwtPayload(account.access_token)
-          if (payload) {
-            token.sub = payload.sub
-            token.email = payload.email
-            token.name = payload.name
-            token.role = payload.role
-            token.permissions = Array.isArray(payload.permission)
-              ? payload.permission
-              : payload.permission
-                ? [payload.permission]
-                : []
-          }
+          return populateTokenFromAccessToken(token, account.access_token)
         }
 
         return token
       }
 
-      // Initial sign in via credentials
+      // Handle initial sign in via credentials
       if (user && "accessToken" in user) {
         const credentialUser = user as CredentialUser
-        // Refresh token is passed from authorize
+
         token.refreshToken = credentialUser.refreshToken
-        // Store accessToken in JWT
         token.accessToken = credentialUser.accessToken
         token.accessTokenExpiresAt = Date.now() + credentialUser.expiresIn * 1000
         token.sub = credentialUser.id
@@ -366,41 +343,23 @@ const config: NextAuthConfig = {
         token.name = credentialUser.name
 
         // Decode access token to extract role and permissions
-        const payload = decodeJwtPayload(credentialUser.accessToken)
-        if (payload) {
-          token.role = payload.role
-          token.permissions = Array.isArray(payload.permission)
-            ? payload.permission
-            : payload.permission
-              ? [payload.permission]
-              : []
-        }
+        return populateTokenFromAccessToken(token, credentialUser.accessToken)
+      }
 
+      // Return token if not expired (with buffer to prevent edge cases)
+      const expiresAt = token.accessTokenExpiresAt as number | undefined
+      if (expiresAt && Date.now() < expiresAt - TOKEN_EXPIRY_BUFFER_MS) {
         return token
       }
 
-      // Return token if not expired (with 60s buffer)
-      if (token.accessTokenExpiresAt && Date.now() < token.accessTokenExpiresAt - 60000) {
-        return token
-      }
-
-      // Access token has expired, try to refresh it
-      // refreshAccessToken will get refreshToken from JWT
+      // Access token has expired, attempt to refresh it
       const refreshToken = token.refreshToken as string | undefined
       if (refreshToken) {
         const refreshedToken = await refreshAccessToken(token)
 
-        // Decode the new access token to update role and permissions
+        // Decode the new access token to update user data, role and permissions
         if (refreshedToken.accessToken && !refreshedToken.error) {
-          const payload = decodeJwtPayload(refreshedToken.accessToken)
-          if (payload) {
-            refreshedToken.role = payload.role
-            refreshedToken.permissions = Array.isArray(payload.permission)
-              ? payload.permission
-              : payload.permission
-                ? [payload.permission]
-                : []
-          }
+          return populateTokenFromAccessToken(refreshedToken, refreshedToken.accessToken as string)
         }
 
         return refreshedToken
@@ -409,51 +368,47 @@ const config: NextAuthConfig = {
       return token
     },
 
+    /**
+     * Session callback - called whenever a session is accessed
+     * 
+     * Note: Keep session minimal and don't expose sensitive tokens to client
+     */
     async session({ session, token }) {
-      // Keep session minimal - don't expose tokens to client by default
       session.user = session.user ?? {}
 
-      if (token.sub) {
-        session.user.id = token.sub
-      }
-      if (token.email) {
-        session.user.email = token.email
-      }
-      if (token.name) {
-        session.user.name = token.name
-      }
-      if (token.picture) {
-        session.user.image = token.picture
-      }
-      if (token.role) {
-        session.user.role = token.role
-      }
-      if (token.permissions) {
-        session.user.permissions = token.permissions
-      }
+      // Populate user data from token
+      if (token.sub) session.user.id = token.sub
+      if (token.email) session.user.email = token.email
+      if (token.name) session.user.name = token.name
+      if (token.picture) session.user.image = token.picture
+      if (token.role) session.user.role = token.role
+      if (token.permissions) session.user.permissions = token.permissions
 
-      // Expose error state for client-side handling
-      if (token.error) {
-        session.error = token.error
-      }
+      // Expose error state for client-side handling (e.g., redirect to login)
+      if (token.error) session.error = token.error
 
       return session
     },
   },
 }
 
+/**
+ * NextAuth Exports
+ */
 export const { handlers, auth, signIn, signOut } = NextAuth(config)
 
-
-// Export for usage in other files if needed
-// export { clearRefreshTokenCookie } // Removed
-
-// Export for server-side token access (e.g., in API proxy)
+/**
+ * Get access token for server-side use
+ * 
+ * Note: Access token retrieval is handled via the API proxy route
+ * which extracts the token directly from the session cookie.
+ * 
+ * @returns null - Token access is delegated to the proxy route
+ */
 export async function getAccessToken(): Promise<string | null> {
   const session = await auth()
   if (!session) return null
 
-  // Access the JWT token directly for server-side use
-  // This requires accessing the internal token, which we do via a workaround
-  return null // Token access is handled via the proxy route
+  // Token access is handled via the API proxy route
+  return null
 }

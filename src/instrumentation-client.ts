@@ -14,12 +14,12 @@ Sentry.init({
   integrations: [
     Sentry.replayIntegration(),
     Sentry.browserTracingIntegration(),
-    Sentry.breadcrumbsIntegration({
-      // Capture console logs as breadcrumbs
-      console: process.env.NODE_ENV === 'development',
-      // Capture DOM events
-      dom: true,
-    }),
+    // Sentry.breadcrumbsIntegration({
+    //   // Capture console logs as breadcrumbs
+    //   console: process.env.NODE_ENV === 'development',
+    //   // Capture DOM events
+    //   dom: true,
+    // }),
   ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.

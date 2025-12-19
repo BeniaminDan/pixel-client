@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { cookies } from "next/headers"
 import { decode } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
+import axios from "axios"
 
 const API_BASE = process.env.API_BASE_URL + "auth/"
 
@@ -61,20 +62,46 @@ async function proxy(
   }
 
   const upstreamUrl = `${API_BASE}/${path.join("/")}`
-  const headers = new Headers(req.headers)
-  headers.set("Authorization", `Bearer ${accessToken}`)
-  headers.delete("host")
 
-  const upstream = await fetch(upstreamUrl, {
-    method: req.method,
-    headers,
-    body: req.method === "GET" || req.method === "HEAD" ? undefined : await req.arrayBuffer(),
+  // Prepare headers for upstream request
+  const headers: Record<string, string> = {}
+  req.headers.forEach((value, key) => {
+    // Skip host header and copy all others
+    if (key.toLowerCase() !== 'host') {
+      headers[key] = value
+    }
   })
+  headers['Authorization'] = `Bearer ${accessToken}`
 
-  return new NextResponse(upstream.body, {
-    status: upstream.status,
-    headers: upstream.headers,
-  })
+  try {
+    // Prepare request body
+    let data: ArrayBuffer | undefined
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      data = await req.arrayBuffer()
+    }
+
+    // Make upstream request using axios
+    const response = await axios({
+      method: req.method,
+      url: upstreamUrl,
+      headers,
+      data,
+      responseType: 'arraybuffer', // Handle binary responses
+      validateStatus: () => true, // Don't throw on any status code
+    })
+
+    // Convert axios response to NextResponse
+    return new NextResponse(response.data, {
+      status: response.status,
+      headers: response.headers as HeadersInit,
+    })
+  } catch (error) {
+    console.error("Proxy request failed:", error)
+    return NextResponse.json(
+      { error: "Failed to proxy request" },
+      { status: 500 }
+    )
+  }
 }
 
 export { proxy as GET, proxy as POST, proxy as PUT, proxy as PATCH, proxy as DELETE }

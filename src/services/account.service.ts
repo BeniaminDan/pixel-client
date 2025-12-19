@@ -2,7 +2,6 @@
  * @fileoverview Account service for user profile and settings management
  */
 
-import type { AxiosInstance } from 'axios'
 import { BaseService } from './base.service'
 
 export interface UserProfile {

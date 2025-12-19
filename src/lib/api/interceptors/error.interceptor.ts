@@ -3,7 +3,6 @@
  */
 
 import type { AxiosInstance, AxiosError } from 'axios'
-import { mapAxiosError } from '../errors'
 import { handleApiError } from '../errors'
 
 export interface ErrorInterceptorOptions {
