@@ -17,12 +17,11 @@ export async function loginWithCredentials(
   try {
     // Use NextAuth's signIn with credentials provider
     // The authorize callback in lib/auth.ts handles the actual authentication
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       email,
       password,
       redirect: false,
-    })
-
+    });
     // signIn returns void when redirect is false, but throws on error
     // If we reach here, login was successful
     return { success: true }
