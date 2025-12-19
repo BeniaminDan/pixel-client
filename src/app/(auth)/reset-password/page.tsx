@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { Suspense, useState, useTransition } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Eye, EyeOff, Loader2, CheckCircle, XCircle } from "lucide-react"
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthMarketingPanel } from "@/features/auth/components/auth-marketing-panel"
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const token = searchParams.get("token") || ""
@@ -288,5 +288,19 @@ export default function ResetPasswordPage() {
         subtitle="Choose a strong password to keep your account secure."
       />
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-dvh items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

@@ -1,21 +1,18 @@
-export interface UpdateProfileData {
-  name?: string
-  // Add other updatable fields as needed
-}
+/**
+ * Re-export account-related types from services to maintain single source of truth
+ */
+export type {
+  UpdateProfileData,
+  ChangePasswordData,
+} from '@/services/account.service'
 
-export interface ChangePasswordData {
-  currentPassword: string
-  newPassword: string
-  confirmNewPassword: string
-}
+export type {
+  ResetPasswordData,
+} from '@/services/auth.service'
 
-export interface ResetPasswordData {
-  email: string
-  token: string
-  newPassword: string
-  confirmNewPassword: string
-}
-
+/**
+ * ServiceResult type used for server action return values
+ */
 export interface ServiceResult<T = void> {
   success: boolean
   data?: T

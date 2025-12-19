@@ -1,165 +1,80 @@
 "use server"
 
 import { signIn } from "@/lib/auth"
-import { AuthError } from "next-auth"
-
-const API_BASE = process.env.API_BASE_URL + "auth/"
-
-export interface LoginResult {
-  success: boolean
-  error?: string
-}
-
-export interface RegisterData {
-  email: string
-  password: string
-  name?: string
-  confirmPassword?: string
-}
-
-export interface RegisterResult {
-  success: boolean
-  error?: string
-  requiresEmailConfirmation?: boolean
-}
+import { AuthService } from "@/services/auth.service"
+import { createPublicClient } from "@/lib/api/factory"
+import { handleApiErrorSilently } from "@/lib/api/errors"
+import type { ServiceResult } from "@/features/auth/types"
 
 /**
- * Sign in with email and password using NextAuth credentials providers
+ * Login with email and password using credentials provider
+ * This uses the NextAuth credentials provider which internally calls the ROPC grant flow
  */
 export async function loginWithCredentials(
   email: string,
-  password: string,
-  // callbackUrl?: string
-): Promise<LoginResult> {
+  password: string
+): Promise<ServiceResult> {
   try {
-    await signIn("credentials", {
+    // Use NextAuth's signIn with credentials provider
+    // The authorize callback in lib/auth.ts handles the actual authentication
+    const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
     })
 
+    // signIn returns void when redirect is false, but throws on error
+    // If we reach here, login was successful
     return { success: true }
   } catch (error) {
-    console.error("Credentials sign in error:", error)
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { success: false, error: "Invalid email or password" }
-        default:
-          return { success: false, error: "An error occurred during sign in" }
-      }
+    console.error("Login error:", error)
+    return {
+      success: false,
+      error: "Invalid email or password",
     }
-
-    // Re-throw if it's a redirect (successful sign-in with redirect: true)
-    throw error
   }
-}
-
-/**
- * Login action that can be used with form action
- */
-export async function loginAction(formData: FormData): Promise<LoginResult> {
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
-  // const callbackUrl = formData.get("callbackUrl") as string || "/"
-  if (!email || !password) {
-    return { success: false, error: "Email and password are required" }
-  }
-
-  // return loginWithCredentials(email, password, callbackUrl)
-  return loginWithCredentials(email, password)
 }
 
 /**
  * Register a new user account
+ * After successful registration, returns success message
  */
-export async function registerUser(data: RegisterData): Promise<RegisterResult> {
+export async function registerUser(data: {
+  email: string
+  password: string
+  confirmPassword: string
+  name?: string
+}): Promise<ServiceResult> {
   try {
-    // Validate passwords match if confirmPassword is provided
-    if (data.confirmPassword && data.password !== data.confirmPassword) {
-      return { success: false, error: "Passwords do not match" }
+    // Validate passwords match
+    if (data.password !== data.confirmPassword) {
+      return {
+        success: false,
+        error: "Passwords do not match",
+      }
     }
 
-    const response = await fetch(`${API_BASE}/account/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password,
-        name: data.name,
-      }),
+    // Create auth service instance
+    const authService = new AuthService(createPublicClient())
+
+    // Register the user
+    await authService.register({
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      name: data.name,
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-
-      // Handle validation errors
-      if (response.status === 400) {
-        if (errorData.errors) {
-          const firstError = Object.values(errorData.errors).flat()[0]
-          return { success: false, error: firstError as string }
-        }
-        return { success: false, error: errorData.message || "Invalid registration data" }
-      }
-
-      // Handle conflict (email already exists)
-      if (response.status === 409) {
-        return { success: false, error: "An account with this email already exists" }
-      }
-
-      return { success: false, error: errorData.message || "Registration failed" }
-    }
-
+    // Registration successful - user needs to confirm email
     return {
       success: true,
-      requiresEmailConfirmation: true,
     }
   } catch (error) {
-    console.error("Registration error:", error)
-    return { success: false, error: "An error occurred during registration" }
-  }
-}
-
-/**
- * Register action that can be used with form action
- */
-export async function registerAction(formData: FormData): Promise<RegisterResult> {
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
-  const confirmPassword = formData.get("confirmPassword") as string
-  const name = formData.get("name") as string
-
-  if (!email || !password) {
-    return { success: false, error: "Email and password are required" }
-  }
-
-  return registerUser({
-    email,
-    password,
-    confirmPassword,
-    name,
-  })
-}
-
-/**
- * Check if an email address is already registered
- */
-export async function checkEmailExists(email: string): Promise<boolean> {
-  try {
-    const response = await fetch(
-      `${API_BASE}/account/exists?email=${encodeURIComponent(email)}`,
-      { method: "GET" }
-    )
-
-    if (response.ok) {
-      const data = await response.json()
-      return data.exists === true
+    const apiError = handleApiErrorSilently(error)
+    return {
+      success: false,
+      error: apiError.userMessage,
+      errors: apiError.details,
     }
-
-    return false
-  } catch {
-    return false
   }
 }

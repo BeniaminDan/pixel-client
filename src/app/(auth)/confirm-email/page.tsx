@@ -13,7 +13,7 @@ import { AuthMarketingPanel } from "@/features/auth/components/auth-marketing-pa
 
 type ConfirmationState = "loading" | "success" | "error" | "expired"
 
-export default function ConfirmEmailPage() {
+function ConfirmEmailContent() {
   const searchParams = useSearchParams()
   const userId = searchParams.get("userId") || ""
   const token = searchParams.get("token") || ""
@@ -218,3 +218,34 @@ export default function ConfirmEmailPage() {
     </div>
   )
 }
+
+export default function ConfirmEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-dvh lg:grid lg:grid-cols-2">
+          <div className="flex h-full items-center justify-center sm:px-6 md:px-8">
+            <div className="flex w-full flex-col items-center gap-6 p-6 text-center sm:max-w-lg">
+              <Loader2 className="size-12 animate-spin text-muted-foreground" />
+              <div>
+                <h2 className="mb-2 text-2xl font-semibold">Loading...</h2>
+                <p className="text-muted-foreground">
+                  Please wait while we load the page.
+                </p>
+              </div>
+            </div>
+          </div>
+          <AuthMarketingPanel
+            title="Email verification"
+            subtitle="Almost there!"
+          />
+        </div>
+      }
+    >
+      <ConfirmEmailContent />
+    </Suspense>
+  )
+}
+
+// Import Suspense
+import { Suspense } from "react"
