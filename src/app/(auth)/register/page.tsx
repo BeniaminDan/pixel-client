@@ -5,13 +5,13 @@ import Link from "next/link"
 import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react"
 
 import { useAuthPopup } from "@/hooks"
-import { registerUser } from "@/features/auth/api/actions/credentials-auth"
+import { registerUser } from "@/modules/auth/api/actions/credentials-auth"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { AuthMarketingPanel } from "@/features/auth/components/auth-marketing-panel"
+import { AuthMarketingPanel } from "@/modules/auth/components/auth-marketing-panel"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
-import { changePasswordAction } from "@/features/auth/api/actions/account"
+import { changePasswordAction } from "@/modules/auth/api/actions/account"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"

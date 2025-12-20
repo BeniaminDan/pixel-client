@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { AlertTriangle, Loader2 } from "lucide-react"
 
-import { deleteAccountAction } from "@/features/auth/api/actions/account"
+import { deleteAccountAction } from "@/modules/auth/api/actions/account"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { auth } from "@/features/auth/lib/auth"
+import { auth } from "@/modules/auth/lib/auth"
 import { ChangePasswordForm } from "./_components/change-password-form"
 import { DeleteAccountSection } from "./_components/delete-account-section"
 import { EmailSection } from "./_components/email-section"

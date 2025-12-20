@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, User } from "lucide-react"
 
-import { updateProfileAction } from "@/features/auth/api/actions/account"
+import { updateProfileAction } from "@/modules/auth/api/actions/account"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

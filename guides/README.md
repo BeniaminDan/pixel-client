@@ -1,152 +1,207 @@
 # Pixel Client Architecture Guide
 
-A comprehensive guide for the Next.js App Router architecture, service patterns, and state management.
+> Next.js 15+ frontend architecture for API-consuming applications.  
+> **No backend code** — this project exclusively consumes external APIs.
 
 ---
 
-## Table of Contents
+## Quick Navigation
 
-1. [Folder Structure](#folder-structure)
-2. [Service Pattern](#service-pattern)
-3. [API Architecture](#api-architecture)
-4. [Hooks](#hooks)
-5. [State Management (Zustand)](#state-management-zustand)
-6. [Quick Reference](#quick-reference)
+| Section | Purpose |
+|---------|---------|
+| [Folder Structure](#folder-structure) | Project organization |
+| [Module Anatomy](#module-anatomy) | Inside a feature module |
+| [Data Flow](#data-flow) | How requests move through layers |
+| [Quick Reference](#quick-reference) | Cheatsheets & conventions |
 
 ---
 
 ## Folder Structure
 
-### Goals
-
-- **Feature modularity** – Each domain/feature is a first-class module with clear public APIs
-- **Hard client/server boundaries** – Server-only code is physically isolated
-- **Replaceability** – Swapping API clients, auth, caching is localized
-- **Scalability** – Supports dozens/hundreds of routes without "shared soup"
-
-### Structure
-
 ```
 src/
-├─ app/                           # Next.js routes (thin composition layer)
-│  ├─ (public)/                   # Public routes
-│  ├─ (app)/                      # Authenticated app shell routes
-│  ├─ api/                        # Route handlers
-│  ├─ layout.tsx
-│  └─ page.tsx
+├── app/                              # Routes only (thin layer)
+│   ├── (public)/                     # Unauthenticated routes
+│   ├── (app)/                        # Authenticated app routes
+│   ├── api/                          # Route handlers (webhooks, etc.)
+│   ├── layout.tsx
+│   └── page.tsx
 │
-├─ modules/                       # Feature modules (domain-aligned)
-│  └─ <feature>/
-│     ├─ ui/                      # React components (client where needed)
-│     ├─ server/                  # Server actions, loaders, mutations
-│     ├─ application/             # Use-cases, orchestration, policies
-│     ├─ domain/                  # Entities, value objects, domain services
-│     ├─ infrastructure/          # Module-specific API adapters, mappers
-│     ├─ contracts/               # DTOs, schemas (zod), API types
-│     ├─ __tests__/               # Module tests
-│     └─ index.ts                 # Module public exports only
+├── modules/                          # Feature modules
+│   └── <feature>/
+│       ├── ui/                       # Client React code
+│       │   ├── components/
+│       │   ├── hooks/
+│       │   └── stores/               # Zustand stores
+│       ├── server/                   # Server Actions
+│       ├── application/              # Use-cases & orchestration
+│       ├── infrastructure/           # Service classes (API calls)
+│       ├── contracts/                # DTOs, Zod schemas, types
+│       └── index.ts                  # Public exports
 │
-├─ shared/                        # Cross-cutting, reusable building blocks
-│  ├─ ui/                         # Design system primitives (Button, Modal)
-│  ├─ hooks/                      # Generic hooks
-│  ├─ lib/                        # Utilities (date, format, fp helpers)
-│  ├─ types/                      # Global TS types (sparingly)
-│  ├─ contracts/                  # Shared schemas/DTOs
-│  └─ index.ts
+├── shared/                           # Cross-cutting code
+│   ├── ui/                           # Design system (Button, Modal)
+│   ├── hooks/                        # Generic hooks (useDebounce)
+│   ├── stores/                       # UI stores (theme, sidebar)
+│   ├── lib/                          # Utilities (format, helpers)
+│   └── contracts/                    # Shared DTOs/schemas
 │
-├─ server/                        # Server-only cross-cutting infrastructure
-│  ├─ http/
-│  │  ├─ clients/                 # Axios/fetch clients, factories
-│  │  ├─ interceptors/            # Auth refresh, logging, retry
-│  │  ├─ errors/                  # Normalized API errors
-│  │  └─ index.ts
-│  ├─ auth/                       # Sessions, tokens, server auth helpers
-│  ├─ cache/                      # Cache policies, tags, revalidation
-│  ├─ observability/              # Logging, tracing, metrics
-│  ├─ config/                     # Env parsing, runtime config
-│  └─ index.ts
+├── server/                           # Server-only infrastructure
+│   ├── http/                         # HTTP client layer
+│   │   ├── clients/                  # Client factories
+│   │   ├── interceptors/             # Auth, retry, logging
+│   │   └── errors/                   # API error handling
+│   ├── auth/                         # NextAuth, sessions, tokens
+│   └── config/                       # Environment, runtime config
 │
-├─ styles/                        # Global styles, tokens
-└─ middleware.ts                  # Next middleware
-
-public/
-tests/                            # e2e (Playwright/Cypress), test utils
-scripts/                          # One-off maintenance scripts
-tooling/                          # ESLint rules, generators
+├── styles/
+└── middleware.ts
 ```
 
-### Key Conventions
+### Key Principles
 
-| Rule | Description |
-|------|-------------|
-| **Module imports** | Only import via `src/modules/<feature>/index.ts` |
-| **Server isolation** | Keep secrets/tokens in `src/server/**` or module `server/infrastructure` |
-| **Consistent shape** | Same folder layout across all modules |
-| **Explicit contracts** | DTOs and schemas in `contracts/` at boundaries |
-| **Curated shared** | Require explicit reason to move code to `shared/` |
+| Principle | Rule |
+|-----------|------|
+| **Module isolation** | Import only via `@/modules/<feature>` barrel |
+| **Server boundary** | Secrets & tokens only in `src/server/` |
+| **Consistent shape** | Every module has the same internal folders |
+| **Curated shared** | Code must earn its place in `shared/` |
 
 ---
 
-## Service Pattern
+## Module Anatomy
 
-### Architecture Overview
+Each module follows **Clean Architecture** adapted for Next.js:
 
 ```
-Browser (Client Components)
-         │ Next.js RPC
-         ↓
-┌─────────────────────────────────────────────────────────┐
-│                    Next.js Server                        │
-│  1. Server Actions     → src/modules/<feature>/server/   │
-│  2. Application Layer  → src/modules/<feature>/application/ │
-│  3. Service Classes    → src/modules/<feature>/infrastructure/*.service.ts │
-│  4. HTTP Clients       → src/server/http/**              │
-└─────────────────────────────────────────────────────────┘
-         │ HTTP
-         ↓
-      Backend API
+modules/billing/
+├── ui/
+│   ├── components/
+│   │   ├── InvoiceCard.tsx
+│   │   └── InvoiceList.tsx
+│   ├── hooks/
+│   │   └── useInvoiceFilters.ts
+│   └── stores/
+│       └── useBillingStore.ts
+│
+├── server/
+│   └── actions/
+│       ├── get-invoices.action.ts
+│       └── create-invoice.action.ts
+│
+├── application/
+│   ├── get-invoices.use-case.ts
+│   └── create-invoice.use-case.ts
+│
+├── infrastructure/
+│   └── billing.service.ts
+│
+├── contracts/
+│   ├── invoice.dto.ts
+│   └── invoice.schema.ts
+│
+└── index.ts
 ```
 
-### Layer Mapping
+### Layer Responsibilities
 
-| Layer | Location | Responsibility |
-|-------|----------|----------------|
-| **Server Actions** | `modules/<feature>/server/actions/*.ts` | `"use server"`, revalidatePath, form handling |
-| **Application** | `modules/<feature>/application/*.ts` | Orchestration, policies, domain ↔ DTO |
-| **Services** | `modules/<feature>/infrastructure/*.service.ts` | API endpoints, business logic |
-| **HTTP Clients** | `server/http/**` | Client creation, interceptors, retries |
+| Layer | Location | Does | Does NOT |
+|-------|----------|------|----------|
+| **UI** | `ui/` | React components, hooks, stores | API calls, business logic |
+| **Server Actions** | `server/` | `"use server"`, form handling, revalidation | Business logic, HTTP calls |
+| **Application** | `application/` | Orchestration, validation, error handling | Direct HTTP, React code |
+| **Infrastructure** | `infrastructure/` | API endpoint wrapping, service classes | Business decisions |
+| **Contracts** | `contracts/` | DTOs, Zod schemas, type definitions | Any logic |
 
-### Quick Implementation
+---
 
-**1. Service Class** (`modules/billing/infrastructure/billing.service.ts`):
+## Data Flow
+
+### Request Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CLIENT                                                                  │
+│  └── Component calls Server Action                                       │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   │ Next.js RPC
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  SERVER ACTION              modules/<feature>/server/                    │
+│  • "use server"                                                          │
+│  • Parse/validate input                                                  │
+│  • Call application layer                                                │
+│  • revalidatePath() after mutations                                      │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  APPLICATION LAYER          modules/<feature>/application/               │
+│  • Orchestrate services                                                  │
+│  • Apply business rules                                                  │
+│  • Transform domain ↔ DTO                                                │
+│  • Unified error handling                                                │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  SERVICE CLASS              modules/<feature>/infrastructure/            │
+│  • Wrap API endpoints                                                    │
+│  • Use shared HTTP client                                                │
+│  • Return raw API responses                                              │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  HTTP CLIENT                src/server/http/                             │
+│  • Configured axios/fetch                                                │
+│  • Auth token injection                                                  │
+│  • Retry logic, interceptors                                             │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   │ HTTP
+                                   ▼
+                              External API
+```
+
+### Code Example: Complete Flow
+
+**1. Service Class** — wraps API endpoints
+
 ```typescript
+// modules/billing/infrastructure/billing.service.ts
 export class BillingService extends BaseService {
   async getInvoices(): Promise<Invoice[]> {
     return this.client.get<Invoice[]>('/billing/invoices').then(r => r.data)
   }
+
   async createInvoice(data: CreateInvoiceDto): Promise<Invoice> {
     return this.client.post<Invoice>('/billing/invoices', data).then(r => r.data)
   }
 }
 ```
 
-**2. Application Layer** (`modules/billing/application/billing.ts`):
+**2. Application Layer** — orchestration & error handling
+
 ```typescript
+// modules/billing/application/create-invoice.use-case.ts
+import { BillingService } from '../infrastructure/billing.service'
+import { createServerAuthenticatedClient } from '@/server/http'
+
 export async function createInvoice(data: CreateInvoiceDto): Promise<ServiceResult<Invoice>> {
   try {
     const service = new BillingService(createServerAuthenticatedClient())
-    return { success: true, data: await service.createInvoice(data) }
+    const invoice = await service.createInvoice(data)
+    return { success: true, data: invoice }
   } catch (error) {
     return { success: false, error: handleApiErrorSilently(error).userMessage }
   }
 }
 ```
 
-**3. Server Action** (`modules/billing/server/actions/billing.ts`):
+**3. Server Action** — Next.js entry point
+
 ```typescript
+// modules/billing/server/actions/create-invoice.action.ts
 "use server"
 import { revalidatePath } from "next/cache"
-import { createInvoice } from "../../application/billing"
+import { createInvoice } from "../../application/create-invoice.use-case"
 
 export async function createInvoiceAction(data: CreateInvoiceDto) {
   const result = await createInvoice(data)
@@ -155,203 +210,160 @@ export async function createInvoiceAction(data: CreateInvoiceDto) {
 }
 ```
 
----
-
-## API Architecture
-
-### Client Factory
+**4. Client Component** — calls the action
 
 ```typescript
-import { createPublicClient, createAuthenticatedClient } from '@/server/http'
+// modules/billing/ui/components/CreateInvoiceForm.tsx
+"use client"
+import { createInvoiceAction } from "../../server/actions/create-invoice.action"
 
-const publicClient = createPublicClient()        // No auth
-const authClient = createAuthenticatedClient()   // Adds auth token
-```
-
-### Error Categories
-
-| Category | Examples | Retryable |
-|----------|----------|-----------|
-| `NETWORK` | Connection issues, timeouts | ✅ |
-| `AUTH` | 401 Unauthorized, token expired | ❌ |
-| `VALIDATION` | 400 Invalid input | ❌ |
-| `RATE_LIMIT` | 429 Too many requests | ✅ |
-| `SERVER` | 5xx errors | ✅ |
-
-### Error Handling
-
-```typescript
-import { handleApiError } from '@/server/http/errors'
-
-try {
-  await service.doSomething()
-} catch (error) {
-  const apiError = handleApiError(error, { showToast: true, logError: true })
-  // apiError.category, apiError.userMessage, apiError.retryable
-}
-```
-
----
-
-## Hooks
-
-### useApiQuery – Fetch Data
-
-```typescript
-const { data, loading, error, refetch } = useApiQuery(
-  'billing-invoices',
-  () => getInvoicesAction(),
-  { refetchInterval: 30000, cacheDuration: 5 * 60 * 1000 }
-)
-```
-
-### useApiMutation – Modify Data
-
-```typescript
-const { mutate, loading } = useApiMutation(
-  (data) => createInvoiceAction(data),
-  {
-    showSuccessToast: true,
-    successMessage: 'Invoice created!',
-    onSuccess: () => clearQuery('billing-invoices')
+export function CreateInvoiceForm() {
+  const handleSubmit = async (formData: FormData) => {
+    const result = await createInvoiceAction({
+      amount: formData.get("amount"),
+      description: formData.get("description"),
+    })
+    if (!result.success) toast.error(result.error)
   }
-)
-```
 
-### Common Patterns
-
-```typescript
-// Dependent queries
-const { data: user } = useApiQuery('user', getUserAction)
-const { data: orders } = useApiQuery('orders', getOrdersAction, { enabled: !!user })
-
-// List + Create pattern
-const { data: items } = useApiQuery('items', getItemsAction)
-const { mutate: create } = useApiMutation(createItemAction, {
-  onSuccess: () => clearQuery('items')
-})
+  return <form action={handleSubmit}>...</form>
+}
 ```
 
 ---
 
-## State Management (Zustand)
+## Shared Infrastructure
 
-### When to Use
+### HTTP Client (`src/server/http/`)
 
-| Use Case | Solution |
-|----------|----------|
-| UI preferences (theme, sidebar) | Zustand (persisted) |
-| Viewport, zoom, selections | Zustand (memory) |
-| Server data (users, invoices) | Hooks + Actions |
-| Authentication | NextAuth |
-| Local form state | `useState` |
-
-### Creating a Store
-
-```typescript
-// shared/stores/useUiStore.ts
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-
-interface UiState {
-  theme: 'light' | 'dark'
-  sidebarOpen: boolean
-  setTheme: (t: 'light' | 'dark') => void
-  toggleSidebar: () => void
-}
-
-export const useUiStore = create<UiState>()(
-  persist(
-    (set) => ({
-      theme: 'dark',
-      sidebarOpen: true,
-      setTheme: (theme) => set({ theme }),
-      toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
-    }),
-    { name: 'ui-store' }
-  )
-)
+```
+server/http/
+├── clients/
+│   ├── index.ts              # Exports factory functions
+│   ├── public.client.ts      # No auth required
+│   └── authenticated.client.ts
+│
+├── interceptors/
+│   ├── auth.interceptor.ts   # Token injection
+│   ├── retry.interceptor.ts  # Auto-retry on 5xx
+│   └── logging.interceptor.ts
+│
+└── errors/
+    ├── api-error.ts          # Normalized error class
+    └── handlers.ts           # handleApiError(), handleApiErrorSilently()
 ```
 
 ### Usage
 
 ```typescript
-'use client'
-import { useUiStore } from '@/shared/stores'
+import { createPublicClient, createServerAuthenticatedClient } from '@/server/http'
 
-function Header() {
-  const { theme, setTheme, toggleSidebar } = useUiStore()
-  return (
-    <header>
-      <button onClick={toggleSidebar}>Menu</button>
-      <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-        {theme}
-      </button>
-    </header>
-  )
+// Public endpoints (no auth)
+const publicClient = createPublicClient()
+
+// Authenticated endpoints (adds token from session)
+const authClient = createServerAuthenticatedClient()
+```
+
+### Error Categories
+
+| Category | Status Codes | Retryable |
+|----------|--------------|-----------|
+| `NETWORK` | Connection failures | ✅ |
+| `AUTH` | 401, 403 | ❌ |
+| `VALIDATION` | 400, 422 | ❌ |
+| `RATE_LIMIT` | 429 | ✅ |
+| `SERVER` | 5xx | ✅ |
+
+---
+
+## State Management
+
+### Decision Matrix
+
+| Data Type | Solution | Location |
+|-----------|----------|----------|
+| Server data | Server Actions + `useApiQuery` | Hooks call actions |
+| UI preferences | Zustand (persisted) | `shared/stores/` |
+| Feature UI state | Zustand | `modules/<feature>/ui/stores/` |
+| Form state | `useState` / React Hook Form | Component-local |
+| Auth | NextAuth | `src/server/auth/` |
+
+### Zustand Example
+
+```typescript
+// modules/canvas/ui/stores/useCanvasStore.ts
+import { create } from 'zustand'
+
+interface CanvasState {
+  zoom: number
+  selectedIds: string[]
+  setZoom: (z: number) => void
+  select: (ids: string[]) => void
 }
+
+export const useCanvasStore = create<CanvasState>((set) => ({
+  zoom: 1,
+  selectedIds: [],
+  setZoom: (zoom) => set({ zoom }),
+  select: (selectedIds) => set({ selectedIds }),
+}))
 ```
 
 ---
 
 ## Quick Reference
 
-### Do's & Don'ts
+### Import Rules
 
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Create new service instance per request | Use singleton services (security risk) |
-| Use `handleApiErrorSilently()` | Call axios directly from components |
-| Add `revalidatePath()` after mutations | Expose backend URL to browser |
-| Import modules via `index.ts` | Skip error handling |
-| Keep `shared/` curated | Dump everything in shared |
+```typescript
+// ✅ GOOD: Import via module barrel
+import { InvoiceCard, useInvoices } from "@/modules/billing"
+
+// ❌ BAD: Deep import into module internals
+import { InvoiceCard } from "@/modules/billing/ui/components/InvoiceCard"
+```
 
 ### File Naming
 
 | Type | Convention | Example |
 |------|------------|---------|
 | Directories | `kebab-case` | `user-settings/` |
-| Components | `PascalCase` | `UserProfile.tsx` |
-| Utilities | `camelCase` | `formatDate.ts` |
-| Constants | `SCREAMING_SNAKE_CASE` | `MAX_FILE_SIZE` |
+| Components | `PascalCase.tsx` | `InvoiceCard.tsx` |
+| Actions | `kebab-case.action.ts` | `create-invoice.action.ts` |
+| Use-cases | `kebab-case.use-case.ts` | `create-invoice.use-case.ts` |
+| Services | `kebab-case.service.ts` | `billing.service.ts` |
+| Stores | `use<Name>Store.ts` | `useCanvasStore.ts` |
 
 ### Next.js Special Files
 
-| File | Purpose | Server/Client |
-|------|---------|---------------|
-| `layout.tsx` | Shared UI wrapping children | Server |
+| File | Purpose | Rendering |
+|------|---------|-----------|
+| `layout.tsx` | Shared wrapper | Server |
 | `page.tsx` | Route UI | Server |
-| `loading.tsx` | Loading state (Suspense) | Server |
+| `loading.tsx` | Suspense fallback | Server |
 | `error.tsx` | Error boundary | **Client** |
 | `route.ts` | API endpoint | Server |
 
-### Route Conventions
+### Route Patterns
 
-| Pattern | Purpose |
-|---------|---------|
-| `(group)` | Route group (no URL impact) |
-| `_folder` | Private folder (excluded from routing) |
-| `[param]` | Dynamic segment |
-| `[...param]` | Catch-all |
-| `@folder` | Parallel routes |
+| Pattern | Purpose | Example |
+|---------|---------|---------|
+| `(group)` | Logical grouping (no URL impact) | `(app)/dashboard` |
+| `[param]` | Dynamic segment | `users/[id]` |
+| `[...slug]` | Catch-all | `docs/[...slug]` |
+| `@folder` | Parallel routes | `@modal` |
+| `_folder` | Private (excluded from routing) | `_components` |
 
----
+### Do's and Don'ts
 
-## Monorepo Ready (Optional)
-
-For multiple apps:
-
-```
-apps/
-├─ web/           # Main Next.js app
-├─ admin/
-└─ marketing/
-
-packages/
-├─ ui/            # Shared design system
-├─ config/        # ESLint/tsconfig presets
-└─ contracts/     # Shared schemas/DTOs
-```
+| ✅ Do | ❌ Don't |
+|-------|---------|
+| New service instance per request | Singleton services (security risk) |
+| Handle errors at application layer | Expose raw API errors to UI |
+| `revalidatePath()` after mutations | Skip cache invalidation |
+| Import via `index.ts` barrels | Deep-import module internals |
+| Keep `shared/` minimal | Dump everything in shared |
 
 ---
 

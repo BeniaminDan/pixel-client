@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Mail } from "lucide-react"
 
-import { refreshEmailAction } from "@/features/auth/api/actions/account"
+import { refreshEmailAction } from "@/modules/auth/api/actions/account"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { AppFooter, AppHeader } from '@/components'
 import { ClientActionButton } from '@/components/client-action-button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { auth } from "@/features/auth/lib/auth"
+import { auth } from "@/modules/auth/lib/auth"
 
 export default async function NotFound() {
   const session = await auth()
