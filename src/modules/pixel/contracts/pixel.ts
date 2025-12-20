@@ -83,7 +83,7 @@ export interface ThroneBattle {
 }
 
 // Stats Types
-export interface LiveStats {
+export interface LiveStatsType {
   pixelsClaimedToday: number
   activeUsersNow: number
   throneValue: number

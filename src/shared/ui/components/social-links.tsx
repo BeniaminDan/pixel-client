@@ -2,7 +2,7 @@
 
 import { Mail } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/reusable/button";
 
 export function SocialLinks({ className }: { className?: string }) {
   return (

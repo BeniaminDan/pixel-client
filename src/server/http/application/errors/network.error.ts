@@ -2,7 +2,8 @@
  * @fileoverview Network-related errors
  */
 
-import { BaseError, ErrorCategory, ErrorSeverity } from "@/server/http/infrastructure";
+import { BaseError } from "@/server/http/infrastructure"
+import { ErrorCategory, ErrorSeverity } from "@/shared/types/api"
 
 export class NetworkError extends BaseError {
   constructor(message = 'Network error occurred', originalError?: unknown) {

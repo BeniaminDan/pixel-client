@@ -1,20 +1,6 @@
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-} from "@/components";
+import { Badge } from "@/shared/ui/reusable/badge";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/shared/ui/reusable/card";
+import { Label } from "@/shared/ui/reusable/label";
 import {
   Bug,
   Clock,
@@ -26,6 +12,10 @@ import {
   Send,
   ShieldCheck,
 } from "lucide-react";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/shared/ui/reusable/select";
+import { Input } from "@/shared/ui/reusable/input";
+import {Textarea} from "@/shared/ui/reusable/textarea";
+import {Button} from "@/shared/ui/reusable/button";
 
 const contactChannels = [
   {

@@ -4,19 +4,19 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ArrowRight, Menu } from "lucide-react"
 
-import { useScrollThreshold } from "@/hooks"
-import { Logo } from "@/components/logo"
-import { NavMenu, navItems } from "@/components"
-import { UserMenu } from "@/components"
-import { Button } from "@/components/ui/button"
+import { useScrollThreshold } from "@/shared/hooks/useScrollThreshold"
+import { Logo } from "@/shared/ui/components/logo";
+import { NavMenu, navItems } from "@/shared/layouts/nav-menu";
+import { UserMenu } from "@/shared/layouts/user-menu";
+import { Button } from "@/shared/ui/reusable/button"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { ThemeToggle } from "@/components"
+} from "@/shared/ui/reusable/sheet"
+import { ThemeToggle } from "@/shared/ui/components/theme-toggle";
 
 interface AppHeaderProps {
   /** Toggles sticky positioning and scroll-driven surface changes */

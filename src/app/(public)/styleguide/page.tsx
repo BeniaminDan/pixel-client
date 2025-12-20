@@ -2,78 +2,31 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Textarea,
-  Checkbox,
-  RadioGroup,
-  RadioGroupItem,
-  Switch,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Badge,
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Separator,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  ThemeToggle,
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Skeleton,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { User, Settings, LogOut } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/reusable/tabs";
+import { Button } from "@/shared/ui/reusable/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/reusable/card";
+import { Badge } from "@/shared/ui/reusable/badge";
+import { Separator } from "@/shared/ui/reusable/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/ui/reusable/dropdown-menu";
+import { Input } from "@/shared/ui/reusable/input";
+import { Label } from "@/shared/ui/reusable/label";
+import { Textarea } from "@/shared/ui/reusable/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/reusable/select";
+import { Checkbox } from "@/shared/ui/reusable/checkbox";
+import { Switch } from "@/shared/ui/reusable/switch";
+import { RadioGroup, RadioGroupItem } from "@/shared/ui/reusable/radio-group";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/reusable/form";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/ui/reusable/dialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/shared/ui/reusable/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/reusable/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/reusable/table";
+import { Skeleton } from "@/shared/ui/reusable/skeleton";
+import { ThemeToggle } from "@/shared/ui/components/theme-toggle";
 
 const formSchema = z.object({
   username: z.string().min(2, {

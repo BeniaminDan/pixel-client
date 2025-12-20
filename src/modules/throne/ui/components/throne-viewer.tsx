@@ -1,13 +1,13 @@
 "use client"
 
-import {useEffect} from "react"
-import {motion} from "motion/react"
-import {Clock, Crown, TrendingUp} from "lucide-react"
+import { useEffect } from "react"
+import { motion } from "motion/react"
+import { Clock, Crown, TrendingUp } from "lucide-react"
 
-import {useThroneStore} from "@/stores"
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {Badge} from "@/components/ui/badge"
-import {Card, CardContent} from "@/components/ui/card"
+import { useThroneStore } from "@/modules/throne"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
 
 interface ThroneViewerProps {
   className?: string

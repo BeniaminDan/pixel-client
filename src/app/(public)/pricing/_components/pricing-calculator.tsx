@@ -5,10 +5,10 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { Calculator, ArrowRight, Sparkles } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { pricingPackages } from "@/components"
+import { Button } from "@/shared/ui/reusable/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { pricingPackages } from "@/shared/ui/components/pricing-card";
 
 interface PricingCalculatorProps {
   className?: string

@@ -4,10 +4,10 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { Check, Sparkles } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import type { PricingPackage } from "@/types"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent, CardHeader } from "@/shared/ui/reusable/card"
+import type { PricingPackage } from "@/modules/pixel";
 
 interface PricingCardProps {
   package: PricingPackage

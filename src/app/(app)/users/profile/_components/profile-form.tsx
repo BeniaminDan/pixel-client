@@ -4,12 +4,12 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, User } from "lucide-react"
 
-import { updateProfileAction } from "@/modules/auth/api/actions/account"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { updateProfileAction } from "@/modules/account/server/actions/account"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
+import { Button } from "@/shared/ui/reusable/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
+import { Input } from "@/shared/ui/reusable/input"
+import { Label} from "@/shared/ui/reusable/label";
 
 interface ProfileFormProps {
   initialData: {

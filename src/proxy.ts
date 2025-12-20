@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/modules/auth/lib/auth"
+import { auth } from "@/modules/auth";
 
 /**
  * Routes that require authentication

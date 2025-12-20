@@ -4,9 +4,9 @@ import {useCallback, useEffect, useRef} from "react"
 import {motion} from "motion/react"
 import {Sparkles, Target, Users} from "lucide-react"
 
-import {useCanvasStore} from "@/stores"
-import {Button} from "@/components/ui/button"
-import {Badge} from "@/components/ui/badge"
+import { useCanvasStore } from "@/modules/pixel"
+import {Button} from "@/shared/ui/reusable/button"
+import {Badge} from "@/shared/ui/reusable/badge"
 
 interface CanvasPreviewProps {
   className?: string

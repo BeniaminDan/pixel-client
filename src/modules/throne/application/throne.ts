@@ -5,7 +5,8 @@
 
 import type { ServiceResult } from "@/server/http/contracts";
 import { createAuthenticatedClient, createPublicClient } from "@/server/http/infrastructure";
-import { attachAuthInterceptor, createServerTokenGetter, handleApiErrorSilently } from "@/server/http/application";
+import { attachAuthInterceptor, createServerTokenGetter } from "@/server/http/application";
+import { handleApiErrorSilently } from "@/shared/error-handler";
 import { ThroneService } from "@/modules/throne";
 import type {
     ThroneHolder,

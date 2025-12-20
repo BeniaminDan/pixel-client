@@ -2,8 +2,8 @@
  * @fileoverview Centralized API configuration
  */
 
-import type { RetryConfig } from '../retry'
-import { DEFAULT_RETRY_CONFIG } from '../retry'
+import type { RetryConfig } from "@/server/http/contracts"
+import { DEFAULT_RETRY_CONFIG } from "@/server/http/contracts";
 
 export interface ApiConfig {
   /** Base URL for the API */

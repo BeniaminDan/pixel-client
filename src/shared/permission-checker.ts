@@ -8,7 +8,7 @@ import {
   ROLE_PERMISSIONS,
   type PermissionUser,
   type PermissionCheckResult
-} from "@/server/http/contracts";
+} from "@/shared/types/permissions";
 
 /**
  * Get all permissions for a role

@@ -3,9 +3,9 @@
  */
 
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
-import { Permission, type PermissionUser} from "@/server/http/contracts/permissions";
-import { InsufficientPermissionsError } from "@/server/http/application/errors";
-import { checkPermission } from "@/server/auth/permission-checker";
+import { Permission, type PermissionUser } from "@/shared/types/permissions"
+import { InsufficientPermissionsError } from "@/server/http/application";
+import { checkPermission } from "@/shared/permission-checker";
 
 /**
  * API endpoint to permission mapping

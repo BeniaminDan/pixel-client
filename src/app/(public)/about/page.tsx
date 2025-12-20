@@ -14,11 +14,11 @@ import {
   MessageCircle,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { StickyCTABar } from "@/components/sticky-cta-bar"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
+import { StickyCTABar } from "@/shared/ui/components/sticky-cta-bar"
 
 const values = [
   {

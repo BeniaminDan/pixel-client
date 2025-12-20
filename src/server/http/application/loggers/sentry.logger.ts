@@ -4,8 +4,8 @@
 
 import * as Sentry from '@sentry/nextjs'
 import type { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import { BaseLogger, LogLevel, type LogContext } from "@/server/http/application/loggers/base.logger";
-import { mapAxiosError } from "@/server/http/application/error-mapper";
+import { BaseLogger, LogLevel, type LogContext } from "@/server/http/application/loggers/base.logger"
+import { mapAxiosError } from "@/shared/error-mapper"
 
 /**
  * Sentry logger for production environment

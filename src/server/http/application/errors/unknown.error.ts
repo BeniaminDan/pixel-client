@@ -2,7 +2,8 @@
  * @fileoverview Unknown/unexpected errors
  */
 
-import { BaseError, ErrorCategory, ErrorSeverity } from "@/server/http/infrastructure";
+import { BaseError } from "@/server/http/infrastructure"
+import { ErrorCategory, ErrorSeverity } from "@/shared/types/api"
 
 export class UnknownError extends BaseError {
     constructor(message = 'An unknown error occurred', originalError?: unknown) {

@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
 import { Shield } from "lucide-react"
 
 export default function PrivacyPage() {

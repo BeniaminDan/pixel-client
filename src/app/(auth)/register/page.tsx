@@ -4,14 +4,14 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2, CheckCircle } from "lucide-react"
 
-import { useAuthPopup } from "@/hooks"
-import { registerUser } from "@/modules/auth/api/actions/credentials-auth"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { AuthMarketingPanel } from "@/modules/auth/components/auth-marketing-panel"
+import { useAuthPopup } from "@/modules/auth";
+import { registerUser } from "@/modules/account/server/actions/account";
+import { Button } from "@/shared/ui/reusable/button";
+import { Checkbox } from "@/shared/ui/reusable/checkbox"
+import { Input } from "@/shared/ui/reusable/input"
+import { Label } from "@/shared/ui/reusable/label"
+import { Separator } from "@/shared/ui/reusable/separator"
+import { AuthMarketingPanel } from "@/modules/auth";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)

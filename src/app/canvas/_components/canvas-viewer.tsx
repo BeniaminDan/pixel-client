@@ -4,12 +4,12 @@ import {useCallback, useEffect, useRef, useState} from "react"
 import {AnimatePresence, motion} from "motion/react"
 import {Calendar, MapPin, Search, Target, User, X, ZoomIn, ZoomOut,} from "lucide-react"
 
-import {useCanvasStore} from "@/stores"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Badge} from "@/components/ui/badge"
-import {Card, CardContent} from "@/components/ui/card"
-import type {Pixel} from "@/types"
+import { useCanvasStore } from "@/modules/pixel";
+import { Button } from "@/shared/ui/reusable/button"
+import { Input } from "@/shared/ui/reusable/input"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
+import type { Pixel } from "@/modules/pixel";
 
 interface CanvasViewerProps {
   className?: string

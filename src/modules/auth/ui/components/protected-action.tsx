@@ -5,8 +5,8 @@
 'use client'
 
 import type { ReactNode, MouseEvent } from 'react'
-import { Permission, Role } from '@/lib/permissions'
-import { usePermissions } from '@/hooks/api'
+import { Permission, Role } from "@/shared/types/permissions";
+import { usePermissions } from "@/shared/hooks/usePermissions";
 import { toast } from 'sonner'
 
 export interface ProtectedActionProps {

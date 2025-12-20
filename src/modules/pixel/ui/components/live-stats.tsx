@@ -4,8 +4,8 @@ import {useEffect} from "react"
 import {motion} from "motion/react"
 import {Crown, DollarSign, Sparkles, TrendingUp, Users} from "lucide-react"
 
-import {useStatsStore} from "@/stores"
-import {Badge} from "@/components/ui/badge"
+import { useStatsStore } from "@/shared/stores/useStatsStore";
+import {Badge} from "@/shared/ui/reusable/badge"
 
 interface LiveStatsProps {
   className?: string

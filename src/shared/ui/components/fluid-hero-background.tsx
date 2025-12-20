@@ -24,8 +24,8 @@
  */
 
 import { forwardRef, useImperativeHandle } from 'react'
-import { useFluidSimulation } from '@/hooks'
-import type { SimConfig, Color, UseFluidSimulationReturn } from '@/types'
+import { useFluidSimulation } from "@/shared/hooks/useFluidSimulation";
+import type { SimConfig, Color, UseFluidSimulationReturn } from "@/shared/types/fluid-simulation";
 
 // ============================================================================
 // Types

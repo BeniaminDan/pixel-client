@@ -3,11 +3,11 @@
  * All functions in this service are designed to be called from server actions.
  */
 
-import type { ServiceResult } from "@/server/http/contracts";
-import { createAuthenticatedClient, createPublicClient } from "@/server/http/infrastructure";
-import { attachAuthInterceptor, createServerTokenGetter } from "@/server/http/application";
-import { handleApiErrorSilently } from "@/server/http/application";
-import { PixelService } from "@/modules/pixel";
+import type { ServiceResult } from "@/server/http/contracts"
+import { createAuthenticatedClient, createPublicClient } from "@/server/http/infrastructure"
+import { attachAuthInterceptor, createServerTokenGetter } from "@/server/http/application"
+import { handleApiErrorSilently } from "@/shared/error-handler"
+import { PixelService } from "@/modules/pixel"
 import type {
     Pixel,
     PlacePixelRequest,
@@ -16,7 +16,7 @@ import type {
     CanvasRegion,
     PixelHistory,
     UserPixelStats
-} from "@/modules/pixel";
+} from "@/modules/pixel"
 
 /**
  * Create server-side authenticated client with token getter and refresh

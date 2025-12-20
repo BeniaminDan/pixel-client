@@ -17,11 +17,11 @@ import {
   MousePointer,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ZoneHeatmap } from "@/components/zone-heatmap"
-import { StickyCTABar } from "@/components/sticky-cta-bar"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
+import { ZoneHeatmap } from "@/modules/pixel";
+import { StickyCTABar } from "@/shared/ui/components/sticky-cta-bar";
 
 const steps = [
   {

@@ -6,8 +6,8 @@ import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axio
 import type { RetryConfig} from "@/server/http/contracts/config/retry-config";
 import { DEFAULT_RETRY_CONFIG} from "@/server/http/contracts/config/retry-config";
 import { calculateRetryDelay, createRetryContext, type RetryContext} from "@/server/http/application/retry-strategy";
-import { isRequestRetryable } from "@/server/http/application/idempotency-manager";
-import { isRetryableError } from "@/server/http/application/error-mapper";
+import { isRequestRetryable } from "@/shared/idempotency-manager";
+import { isRetryableError } from "@/shared/error-mapper";
 
 // Symbol to track retry count on request config
 const RETRY_COUNT_SYMBOL = Symbol('retryCount')

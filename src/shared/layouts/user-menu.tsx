@@ -2,9 +2,9 @@
 
 import { LogOut, User, Settings } from "lucide-react"
 import Link from "next/link"
-import { logoutAction } from "@/modules/auth/api/actions/auth"
+import { logoutAction } from "@/modules/auth";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/shared/ui/reusable/dropdown-menu"
 
 
 interface UserMenuProps {

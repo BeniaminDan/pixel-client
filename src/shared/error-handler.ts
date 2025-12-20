@@ -3,8 +3,9 @@
  */
 
 import { toast } from 'sonner'
-import { BaseError, ErrorCategory, ErrorSeverity } from "@/server/http/infrastructure";
-import { mapGenericError } from "@/server/http/application/error-mapper";
+import { BaseError } from "@/server/http/infrastructure"
+import { mapGenericError } from "@/shared/error-mapper"
+import { ErrorCategory, ErrorSeverity } from "@/shared/types/api"
 
 export interface ErrorHandlerOptions {
   showToast?: boolean

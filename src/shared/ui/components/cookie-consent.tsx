@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Cookie as CookieIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { useCookieConsent } from "@/hooks";
-import { useMediaQuery } from "@/hooks";
+import { Button } from "@/shared/ui/reusable/button";
+import { Card, CardContent, CardDescription, CardTitle } from "@/shared/ui/reusable/card";
+import { Label } from "@/shared/ui/reusable/label";
+import { Separator } from "@/shared/ui/reusable/separator";
+import { Switch } from "@/shared/ui/reusable/switch";
+import { useCookieConsent } from "@/shared/hooks/useCookieConsent";
+import { useMediaQuery } from "@/shared/hooks/useMediaQuery";
 import {
   Sheet,
   SheetContent,
@@ -18,7 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/shared/ui/reusable/sheet";
 
 function PreferencesContent({
   analytics,

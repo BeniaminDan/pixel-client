@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance, AxiosError } from 'axios'
-import { handleApiError } from "@/server/http/application/error-handler";
+import { handleApiError } from "@/shared/error-handler"
 
 export interface ErrorInterceptorOptions {
   /** Show toast notifications for errors */

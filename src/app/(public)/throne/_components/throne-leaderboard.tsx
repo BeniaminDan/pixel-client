@@ -4,11 +4,11 @@ import {useEffect} from "react"
 import {motion} from "motion/react"
 import {Clock, Crown, DollarSign, Medal, Trophy} from "lucide-react"
 
-import {useThroneStore} from "@/stores"
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {Badge} from "@/components/ui/badge"
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import { useThroneStore } from "@/modules/throne"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/reusable/table"
 
 interface ThroneLeaderboardProps {
   className?: string

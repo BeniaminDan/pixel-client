@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { ArrowLeft, RefreshCw, Home, Search } from 'lucide-react'
 import type { VariantProps } from 'class-variance-authority'
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/reusable/button'
+import { cn } from "@/shared/lib/cn"
 
 type ActionType = 'back' | 'refresh' | 'home' | 'search'
 

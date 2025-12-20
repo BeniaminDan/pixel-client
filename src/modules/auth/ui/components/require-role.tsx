@@ -5,8 +5,8 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { Role } from '@/lib/permissions'
-import { usePermissions } from '@/hooks/api'
+import { Role } from "@/shared/types/permissions";
+import { usePermissions } from "@/shared/hooks/usePermissions";
 
 export interface RequireRoleProps {
   /** Required role(s) */

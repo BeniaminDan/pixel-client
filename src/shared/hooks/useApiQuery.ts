@@ -5,7 +5,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { handleApiError, type ApiError } from '@/lib/api/errors'
+import { handleApiError } from "@/shared/error-handler";
+import {ApiError} from "@/shared/types/api";
 
 export interface UseApiQueryOptions<T> {
   /** Enable the query (default: true) */

@@ -5,11 +5,11 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Eye, EyeOff, Loader2, CheckCircle, XCircle } from "lucide-react"
 
-import { resetPasswordAction } from "@/modules/auth/api/actions/account"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { AuthMarketingPanel } from "@/modules/auth/components/auth-marketing-panel"
+import { resetPasswordAction } from "@/modules/account/server/actions/account";
+import { Button } from "@/shared/ui/reusable/button";
+import { Input } from "@/shared/ui/reusable/input"
+import { Label } from "@/shared/ui/reusable/label"
+import { AuthMarketingPanel } from "@/modules/auth";
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams()

@@ -3,15 +3,15 @@
  */
 
 import { create } from 'zustand'
-import type { LiveStats } from '@/types'
+import type { LiveStatsType } from "@/modules/pixel";
 
 interface StatsState {
-  stats: LiveStats
+  stats: LiveStatsType
   isLoading: boolean
   lastUpdated: string
 
   // Actions
-  updateStats: (partial: Partial<LiveStats>) => void
+  updateStats: (partial: Partial<LiveStatsType>) => void
   startSimulation: () => () => void
 }
 
@@ -37,7 +37,7 @@ export const useStatsStore = create<StatsState>((set, get) => ({
     // Simulate stats updates every 3-8 seconds
     const interval = setInterval(() => {
       const state = get()
-      const updates: Partial<LiveStats> = {}
+      const updates: Partial<LiveStatsType> = {}
 
       // Random chance to update each stat
       if (Math.random() > 0.5) {

@@ -5,7 +5,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { usePermissions } from '@/hooks/api'
+import { usePermissions } from "@/shared/hooks/usePermissions";
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 

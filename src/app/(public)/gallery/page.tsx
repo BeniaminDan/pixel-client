@@ -14,14 +14,14 @@ import {
   Filter,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LiveStats } from "@/components/live-stats"
-import { StickyCTABar } from "@/components/sticky-cta-bar"
-import type { GalleryCreation, ThroneBattle } from "@/types"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/reusable/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/reusable/tabs"
+import { StickyCTABar } from "@/shared/ui/components/sticky-cta-bar"
+import { GalleryCreation, ThroneBattle } from "@/modules/pixel"
+import { LiveStats } from "@/modules/pixel/ui"
 
 // Mock gallery data
 const mockCreations: GalleryCreation[] = [

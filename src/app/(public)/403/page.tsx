@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { ShieldAlert } from 'lucide-react'
 
-import { ClientActionButton } from '@/components/client-action-button'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ClientActionButton } from "@/shared/ui/components/client-action-button";
+import { Button } from '@/shared/ui/reusable/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/reusable/card'
 
 export default function Forbidden() {
   return (

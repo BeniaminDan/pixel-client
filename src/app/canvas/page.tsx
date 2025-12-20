@@ -4,8 +4,8 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { ArrowRight, LogIn } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
 import { CanvasViewer } from "./_components/canvas-viewer"
 
 export default function CanvasPage() {

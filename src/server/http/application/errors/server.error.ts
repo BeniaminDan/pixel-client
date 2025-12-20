@@ -2,7 +2,8 @@
  * @fileoverview Server-related errors
  */
 
-import { BaseError, ErrorCategory, ErrorSeverity } from "@/server/http/infrastructure";
+import { BaseError } from "@/server/http/infrastructure";
+import { ErrorCategory, ErrorSeverity } from "@/shared/types/api";
 
 export class ServerError extends BaseError {
     constructor(message = 'Internal server error', status = 500, originalError?: unknown) {

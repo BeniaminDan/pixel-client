@@ -15,12 +15,12 @@ import {
   Check,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
 import { ThroneLeaderboard } from "./_components/throne-leaderboard"
-import { ThroneViewer } from "@/components"
-import { StickyCTABar } from "@/components/sticky-cta-bar"
+import { ThroneViewer } from "@/modules/throne";
+import { StickyCTABar } from "@/shared/ui/components/sticky-cta-bar";
 
 const biddingRules = [
   {

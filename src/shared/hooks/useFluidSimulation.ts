@@ -13,8 +13,8 @@ import type {
   PointerData,
   SimConfig,
   UseFluidSimulationReturn,
-  WebGLExtensions,
-} from '@/types'
+  WebGLExtensions
+} from "@/shared/types/fluid-simulation"
 import {
   advectionShader,
   baseVertexShader,
@@ -35,8 +35,8 @@ import {
   splatShader,
   sunraysMaskShader,
   sunraysShader,
-  vorticityShader,
-} from '@/lib/fluid-shaders'
+  vorticityShader
+} from "@/shared/lib/fluid-shaders"
 import {
   blit,
   compileShader,
@@ -57,9 +57,9 @@ import {
   normalizeColor,
   resizeCanvas,
   scaleByPixelRatio,
-  wrap,
-} from '@/lib/fluid-webgl'
-import {parseCSSColor} from '@/lib/color-utils'
+  wrap
+} from "@/shared/lib/fluid-webgl"
+import { parseCSSColor } from "@/shared/lib/color-utils"
 
 // ============================================================================
 // Default Configuration
@@ -537,8 +537,7 @@ export function useFluidSimulation(
     const handleClick = (e: MouseEvent) => {
       const posX = scaleByPixelRatio(e.offsetX)
       const posY = scaleByPixelRatio(e.offsetY)
-      let pointer = pointers.find((p) => p.id === -1)
-      if (pointer == null) pointer = createPointer()
+      const pointer = pointers.find((p) => p.id === -1) || createPointer()
       updatePointerDownData(pointer, -1, posX, posY)
     }
 

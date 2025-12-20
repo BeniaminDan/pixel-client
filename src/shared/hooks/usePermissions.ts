@@ -7,9 +7,6 @@
 import { useSession } from 'next-auth/react'
 import { useMemo } from 'react'
 import {
-  Role,
-  Permission,
-  type PermissionUser,
   hasPermission,
   hasAnyPermission,
   hasAllPermissions,
@@ -20,8 +17,9 @@ import {
   isModerator,
   isAuthenticated,
   isGuest,
-  getUserPermissions,
-} from '@/lib/permissions'
+  getUserPermissions
+} from "@/shared/permission-checker";
+import {Permission, PermissionUser, Role } from "@/shared/types/permissions";
 
 /**
  * Convert session to permission user

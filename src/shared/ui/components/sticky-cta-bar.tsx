@@ -5,8 +5,8 @@ import Link from "next/link"
 import { motion, AnimatePresence } from "motion/react"
 import { ArrowRight, X, Sparkles } from "lucide-react"
 
-import { useScrollThreshold } from "@/hooks"
-import { Button } from "@/components/ui/button"
+import { useScrollThreshold } from "@/shared/hooks/useScrollThreshold"
+import { Button } from "@/shared/ui/reusable/button"
 
 interface StickyCTABarProps {
   className?: string

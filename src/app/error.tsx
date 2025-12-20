@@ -4,9 +4,10 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { AlertCircle } from 'lucide-react'
 
-import { AppFooter, AppHeader } from '@/components'
-import { ClientActionButton } from '@/components'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AppHeader } from "@/shared/layouts/app-header";
+import { AppFooter} from "@/shared/layouts/app-footer";
+import { ClientActionButton } from "@/shared/ui/components/client-action-button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/reusable/card'
 import { useSession } from 'next-auth/react'
 
 interface ErrorProps {

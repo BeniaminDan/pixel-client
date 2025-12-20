@@ -4,8 +4,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Session } from 'next-auth'
-import { Role, Permission, type PermissionUser } from "@/server/http/contracts";
-import { hasPermission, hasRole, hasMinimumRole } from "@/server";
+import { Role, Permission, type PermissionUser } from "@/shared/types/permissions";
+import { hasPermission, hasRole, hasMinimumRole } from "@/shared/permission-checker";
 
 /**
  * Route permission configuration

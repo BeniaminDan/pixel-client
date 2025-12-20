@@ -1,6 +1,6 @@
-import { auth } from "@/modules/auth/lib/auth"
-import { AppFooter } from "@/components"
-import { StickyHeaderWrapper } from "@/components/layouts/sticky-header-wrapper"
+import { auth } from "@/modules/auth";
+import { AppFooter } from "@/shared/layouts/app-footer";
+import { StickyHeaderWrapper } from "@/shared/layouts/sticky-header-wrapper";
 import { ReactNode } from "react";
 
 export default async function PublicLayout({

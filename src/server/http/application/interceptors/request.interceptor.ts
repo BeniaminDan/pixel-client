@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
-import { applyIdempotencyConfig } from "@/server/http/application";
+import { applyIdempotencyConfig } from "@/shared/idempotency-manager"
 
 /**
  * Add request metadata and headers

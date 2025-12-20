@@ -2,35 +2,7 @@
  * @fileoverview Base API Error class with categorization and metadata
  */
 
-export enum ErrorSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
-}
-
-export enum ErrorCategory {
-  NETWORK = 'network',
-  AUTH = 'auth',
-  VALIDATION = 'validation',
-  SERVER = 'server',
-  CLIENT = 'client',
-  PERMISSION = 'permission',
-  RATE_LIMIT = 'rate_limit',
-  UNKNOWN = 'unknown',
-}
-
-export interface ApiErrorOptions {
-  code?: string
-  status?: number
-  severity?: ErrorSeverity
-  category?: ErrorCategory
-  retryable?: boolean
-  originalError?: unknown
-  userMessage?: string
-  details?: Record<string, string[]>
-  timestamp?: Date
-}
+import { ApiErrorOptions, ErrorCategory, ErrorSeverity } from "@/shared/types/api";
 
 /**
  * Enhanced API error class with categorization and metadata

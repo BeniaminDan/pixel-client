@@ -14,15 +14,15 @@ import {
   ChevronRight,
 } from "lucide-react"
 
-import { FluidHeroBackground } from "@/components"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { ThroneViewer } from "@/components"
-import { PricingCard, pricingPackages } from "@/components"
-import { ZoneHeatmap } from "@/components/zone-heatmap"
-import { TrustSignals, LiveStats } from "@/components/live-stats"
-import { StickyCTABar } from "@/components/sticky-cta-bar"
+import { FluidHeroBackground } from "@/shared/ui/components/fluid-hero-background"
+import { Button } from "@/shared/ui/reusable/button"
+import { Badge } from "@/shared/ui/reusable/badge"
+import { Card, CardContent } from "@/shared/ui/reusable/card"
+import { ThroneViewer } from "@/modules/throne";
+import { PricingCard, pricingPackages } from "@/shared/ui/components/pricing-card";
+import { LiveStats, ZoneHeatmap } from "@/modules/pixel";
+import { TrustSignals } from "@/modules/pixel";
+import { StickyCTABar} from "@/shared/ui/components/sticky-cta-bar";
 
 const valueProps = [
   {

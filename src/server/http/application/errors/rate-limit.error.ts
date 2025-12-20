@@ -2,7 +2,8 @@
  * @fileoverview Rate limiting errors
  */
 
-import { BaseError, ErrorCategory, ErrorSeverity } from "@/server/http/infrastructure";
+import { BaseError } from "@/server/http/infrastructure"
+import { ErrorCategory, ErrorSeverity } from "@/shared/types/api"
 
 export class RateLimitError extends BaseError {
     constructor(retryAfter?: number, originalError?: unknown) {

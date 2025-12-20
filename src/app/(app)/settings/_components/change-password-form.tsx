@@ -3,11 +3,11 @@
 import { useState, useTransition } from "react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
-import { changePasswordAction } from "@/modules/auth/api/actions/account"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { changePasswordAction } from "@/modules/account/server/actions/account"
+import { Button } from "@/shared/ui/reusable/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/reusable/card"
+import { Input } from "@/shared/ui/reusable/input"
+import { Label } from "@/shared/ui/reusable/label"
 
 export function ChangePasswordForm() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
