@@ -2,14 +2,6 @@
  * @fileoverview Main barrel export for the API client system
  */
 
-// Core infrastructure
-export * from './errors'
-export * from './retry'
-export * from './logging'
-export * from './config'
-
-// Factory and clients
-export * from './clients'
-
-// Interceptors
-export * from './interceptors'
+export * from './infrastructure'
+export * from './application'
+export * from './contracts'

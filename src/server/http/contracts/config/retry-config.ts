@@ -2,26 +2,7 @@
  * @fileoverview Retry configuration for API requests
  */
 
-export interface RetryConfig {
-  /** Maximum number of retry attempts */
-  maxAttempts: number
-  /** Initial delay in milliseconds before first retry */
-  initialDelay: number
-  /** Multiplier for exponential backoff (e.g., 2 means delay doubles each time) */
-  backoffMultiplier: number
-  /** Maximum delay in milliseconds between retries */
-  maxDelay: number
-  /** Whether to add jitter to retry delays */
-  useJitter: boolean
-  /** HTTP status codes that should trigger a retry */
-  retryableStatusCodes: number[]
-  /** HTTP methods that are safe to retry (idempotent) */
-  idempotentMethods: string[]
-  /** Retry on network errors (no response received) */
-  retryOnNetworkError: boolean
-  /** Retry on timeout errors */
-  retryOnTimeout: boolean
-}
+import { RetryConfig } from "@/server/http/contracts"
 
 /**
  * Default retry configuration
@@ -80,13 +61,3 @@ export const RETRY_PRESETS = {
     maxDelay: 5000,
   } as RetryConfig,
 } as const
-
-/**
- * Merge custom retry config with defaults
- */
-export function createRetryConfig(custom: Partial<RetryConfig> = {}): RetryConfig {
-  return {
-    ...DEFAULT_RETRY_CONFIG,
-    ...custom,
-  }
-}

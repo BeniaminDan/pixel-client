@@ -4,17 +4,26 @@
  * Migrated to use axios architecture.
  */
 
-import type { UserProfile, UpdateProfileData, ChangePasswordData, ResetPasswordData, ServiceResult } from "@/server/http/contracts";
+import {
+  UserProfile,
+  UpdateProfileData,
+  ChangePasswordData,
+  ResetPasswordData,
+  ServiceResult,
+  AUTHENTICATED_API_CONFIG
+} from "@/server/http/contracts";
 import { AccountSetupService } from "@/modules/account";
 import { AccountService } from "@/modules/account";
-import { createAuthenticatedClient, createPublicClient } from "@/server/http/infrastructure";
-import { attachAuthInterceptor, createServerTokenGetter, handleApiErrorSilently } from "@/server/http/application";
+
+import { attachAuthInterceptor, createServerTokenGetter } from "@/server/http/application";
+import {handleApiErrorSilently} from "@/shared/error-handler";
+import createBaseClient from "@/server/http/infrastructure/base.client";
 
 /**
  * Create a server-side authenticated client with token getter and refresh
  */
 function createServerAuthenticatedClient() {
-  const client = createAuthenticatedClient()
+  const client = createBaseClient(AUTHENTICATED_API_CONFIG)
   attachAuthInterceptor(client, {
     getToken: createServerTokenGetter(),
   })
@@ -25,7 +34,7 @@ function createServerAuthenticatedClient() {
  * Create server-side account setup service
  */
 function createServerAccountSetupService() {
-  return new AccountSetupService(createPublicClient())
+  return new AccountSetupService(createBaseClient(AUTHENTICATED_API_CONFIG))
 }
 
 /**

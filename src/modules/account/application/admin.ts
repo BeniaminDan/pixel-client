@@ -5,7 +5,7 @@
 
 import type { ServiceResult } from "@/server/http/contracts";
 import { AdminService } from "@/modules/account/infrastructure/admin-service";
-import { createAdminClient } from "@/server/http/infrastructure";
+import { createAuthenticatedClient } from "@/server/http/infrastructure";
 import { attachAuthInterceptor, createServerTokenGetter, handleApiErrorSilently } from "@/server/http/application";
 
 import type {
@@ -23,7 +23,7 @@ import type {
  * Create a server-side admin client with token getter and refresh
  */
 function createServerAdminClient() {
-    const client = createAdminClient()
+    const client = createAuthenticatedClient()
     attachAuthInterceptor(client, {
         getToken: createServerTokenGetter(),
         refreshToken: async () => {

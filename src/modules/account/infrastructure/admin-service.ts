@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance } from 'axios'
-import { BaseService, createAdminClient } from "@/server/http/infrastructure";
+import { BaseService, createAuthenticatedClient } from "@/server/http/infrastructure";
 import {
   AdminUser,
   BanUserRequest, ContentReport, ModerationAction, SystemStats,
@@ -18,7 +18,7 @@ import {
  */
 export class AdminService extends BaseService {
   constructor(client?: AxiosInstance) {
-    super(client || createAdminClient())
+    super(client || createAuthenticatedClient())
   }
 
   // ============================================================================
